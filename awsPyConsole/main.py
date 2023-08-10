@@ -41,7 +41,7 @@ def main_frame(root,profilo): #nota: funziona solo se c'è un iframe nella main
 def reload_profile(root,profilo):
     main_frame(root,profilo)
     #root.setvar(name ="profilo_selezionato",value =profilo)
-    print(profilo)
+    #print(profilo)
 
 def main():
     main_window_start()

@@ -3,8 +3,6 @@ from tkinter import Toplevel
 from tkinter import Menu
 
 #see https://www.pythontutorial.net/tkinter/tkinter-menu/
-if __name__ == '__main__':
-    print("file not runnable")
 
 
 def create_menu(root,lista_profili_aws,load_profile_function):
@@ -40,7 +38,9 @@ def create_menu(root,lista_profili_aws,load_profile_function):
     # profili bar
     profili_menu = Menu(menubar,tearoff=0)
     for profilo in lista_profili_aws:
-        profili_menu.add_command(label=profilo, command=lambda:load_profile_function(root,profilo) )
+        #x=profilo perchè https://stackoverflow.com/questions/728356/dynamically-creating-a-menu-in-tkinter-lambda-expressions
+        profili_menu.add_command(label=profilo, command=lambda x=profilo:load_profile_function(root,x) )
+
     menubar.add_cascade(
         label="Profili",
         menu=profili_menu
@@ -71,3 +71,13 @@ def open_about(root):
     l1 = tk.Label(my_w_child,  textvariable=my_str1 )
     l1.grid(row=1,column=2) 
     my_str1.set("Aws Py Console - see www.alnao.it")
+
+
+
+
+if __name__ == '__main__':
+    root = tk.Tk()
+    root.title('Aws Py Console - only menu')
+    root.geometry ('200x70') #WIDTHxHEIGHT+TOP+LEFT
+    create_menu(root,['profilo1','profilo2'],print)
+    root.mainloop()
