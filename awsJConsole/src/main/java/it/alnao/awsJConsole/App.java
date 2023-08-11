@@ -24,9 +24,9 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SwingUtilities;
 
 import it.alnao.awsJConsole.sdk.Profiles;
+import it.alnao.awsJConsole.window.Menu;
 //import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 //import software.amazon.awssdk.profiles.Profile;
-
 
 /**
  * 
@@ -35,8 +35,6 @@ import it.alnao.awsJConsole.sdk.Profiles;
  * 
  */
 public class App {
-    
-    
     public static void main(String[] args) {
     	//logger.info("Application 03_ProfilesMenu start");
         SwingUtilities.invokeLater(new Runnable() {
@@ -61,50 +59,25 @@ public class App {
     private JPanel statusPanel;
     private JPanel contentPane;
     public App(Set<String> profilesList ) {
-    	//see menu https://docs.oracle.com/javase/tutorial/uiswing/components/menu.html
-    	JMenuBar menuBar;
-    	JMenu menu, submenu;
-    	JMenuItem menuItem;
-    	JRadioButtonMenuItem rbMenuItem;
-    	JCheckBoxMenuItem cbMenuItem;
-    	menuBar = new JMenuBar();
-    	menu = new JMenu("Profiles");
-    	menuBar.add(menu);
-    	//menu.addSeparator();
-    	ButtonGroup group = new ButtonGroup();
-    	for (final String prof : profilesList) {
-        	rbMenuItem = new JRadioButtonMenuItem(prof);
-        	if (Profiles.DEFAULT_PROFILE.equals(prof))
-        		rbMenuItem.setSelected(true);
-        	rbMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                	//logger.info("load profile " + prof);
-                	updateStatusPanel(prof);
-                	
-              	}
-            });
-        	group.add(rbMenuItem);
-        	menu.add(rbMenuItem);
-    	}
-    	
     	contentPane = new JPanel();
         contentPane.setLayout(new BorderLayout());
         contentPane.setPreferredSize(new Dimension(320 * 4,700));
         contentPane.add(new JLabel("Content"), BorderLayout.CENTER);
         
-        frame = new JFrame("AlNao JConsole");
+        frame = new JFrame("Aws J Console");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setLocationByPlatform(true);
         frame.setSize(200,200);
         frame.setContentPane(contentPane);        
         frame.pack();
-        frame.setJMenuBar(menuBar);
+        frame.setJMenuBar(Menu.createMenuBar(profilesList  , this ));
         frame.setVisible(true);
         
         updateStatusPanel(Profiles.DEFAULT_PROFILE);
     }
-    private void updateStatusPanel(String s){
+    public JFrame getFrame() {return frame;}
+    public String updateStatusPanel(String s){
         if (contentPane!=null)
         	frame.remove(contentPane);
         contentPane=createBucketPanel(s);
@@ -124,6 +97,7 @@ public class App {
         */
         frame.validate();
         frame.repaint();
+        return s;
     }
     private JPanel createBucketPanel(String profile) {
     	JPanel statusPanel = new JPanel();
