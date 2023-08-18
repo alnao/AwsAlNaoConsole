@@ -2,6 +2,7 @@ package it.alnao.awsJConsole.window;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -58,7 +59,11 @@ public class Menu {
         		rbMenuItem.setSelected(true);
         	rbMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent arg0) {
-                	app.updateStatusPanel(prof);
+                	try {
+						app.updateStatusPanel(prof);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
               	}
             });
         	group.add(rbMenuItem);

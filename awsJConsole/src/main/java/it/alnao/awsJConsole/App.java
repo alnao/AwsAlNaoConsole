@@ -24,9 +24,11 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SwingUtilities;
 
 import it.alnao.awsJConsole.sdk.Profiles;
+import it.alnao.awsJConsole.window.MainTabs;
 import it.alnao.awsJConsole.window.Menu;
 //import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 //import software.amazon.awssdk.profiles.Profile;
+import software.amazon.awssdk.regions.Region;
 
 /**
  * 
@@ -35,30 +37,27 @@ import it.alnao.awsJConsole.window.Menu;
  * 
  */
 public class App {
+	private Region defaultRegion=Region.EU_WEST_1;
+	
     public static void main(String[] args) {
-    	//logger.info("Application 03_ProfilesMenu start");
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-            	//Regions region = Regions.EU_WEST_1;
-            	Set<String> profilesList;
 				try {
-					profilesList = Profiles.loadProfilesFromFile();
+					Set<String> profilesList = Profiles.loadProfilesFromFile();
 					new App(profilesList);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                
             }
         });
     }  
+    
     //app component
-    private JFrame frame ;
-    private JLabel statusLabel;
+    private JFrame frame ;//private JLabel statusLabel;
     private JPanel statusPanel;
     private JPanel contentPane;
-    public App(Set<String> profilesList ) {
+    public App(Set<String> profilesList ) throws FileNotFoundException {
     	contentPane = new JPanel();
         contentPane.setLayout(new BorderLayout());
         contentPane.setPreferredSize(new Dimension(320 * 4,700));
@@ -77,10 +76,10 @@ public class App {
         updateStatusPanel(Profiles.DEFAULT_PROFILE);
     }
     public JFrame getFrame() {return frame;}
-    public String updateStatusPanel(String s){
+    public String updateStatusPanel(String s) throws FileNotFoundException{
         if (contentPane!=null)
         	frame.remove(contentPane);
-        contentPane=createBucketPanel(s);
+        contentPane=createMainPanel(s);
         frame.setContentPane(contentPane); 
         
     	if (statusPanel!=null)
@@ -99,10 +98,12 @@ public class App {
         frame.repaint();
         return s;
     }
-    private JPanel createBucketPanel(String profile) {
+    private JPanel createMainPanel(String profile) throws FileNotFoundException {
     	JPanel statusPanel = new JPanel();
-    	JLabel statusLabel = new JLabel("Frame with profile: " +profile);
-    	statusPanel.add(statusLabel);
+    	//JLabel statusLabel = new JLabel("Frame with profile: " +profile);
+    	//statusPanel.add(statusLabel);
+    	Region region=defaultRegion; //TODO: selettore di regioni
+    	statusPanel.add(MainTabs.createMainTabs(profile,region));
     	return statusPanel;
     }
 }
