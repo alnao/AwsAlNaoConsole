@@ -31,7 +31,14 @@ public class Instances {
 		//List<String> data=new ArrayList<String>();
 		//JTable(Vector rowData, Vector columnNames)
 		for (int i=0;i<listI.size();i++) {Instance instance= listI.get(i);
-			String name= instance.tags().size()>0 ? instance.tags().get(0).value() : instance.instanceId();
+			String name=" ";
+			if (instance.tags().size()>0) {
+				for (int j=0;j<instance.tags().size();j++) {
+					if ( "Name".equals( instance.tags().get(j).key() )) {
+						name=instance.tags().get(j).value();
+					}
+				}
+			} 
 			data[i][0]=name;
 			data[i][1]=instance.instanceId();
 			data[i][2]=instance.instanceType().toString();

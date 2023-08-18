@@ -78,7 +78,7 @@ public class Menu {
     		  @Override
     		  public void actionPerformed(ActionEvent e) {
     			    JOptionPane.showMessageDialog(
-    			    	      app.getFrame(), "Aws J Console -- see www.alnao.it");
+    			    	app.getFrame(), "Aws J Console -- see www.alnao.it");
     		  }
     		});
     	menuH.add(miFileA);
