@@ -57,10 +57,13 @@ public class App {
     private JFrame frame ;//private JLabel statusLabel;
     private JPanel statusPanel;
     private JPanel contentPane;
+    public static final int WIN_W=1000;
+    public static final int WIN_H=700;
+    
     public App(Set<String> profilesList ) throws FileNotFoundException {
     	contentPane = new JPanel();
         contentPane.setLayout(new BorderLayout());
-        contentPane.setPreferredSize(new Dimension(320 * 4,700));
+        contentPane.setPreferredSize(new Dimension(WIN_W,WIN_H));
         contentPane.add(new JLabel("Content"), BorderLayout.CENTER);
         
         frame = new JFrame("Aws J Console");

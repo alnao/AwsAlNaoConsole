@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.event.MenuKeyEvent;
 import javax.swing.plaf.DimensionUIResource;
 
+import it.alnao.awsJConsole.App;
 import it.alnao.awsJConsole.window.ec2.Instances;
 import software.amazon.awssdk.regions.Region;
 
@@ -24,7 +25,7 @@ public class MainTabs {
 	
 	public static JTabbedPane createMainTabs(String profile,Region region) throws FileNotFoundException {
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.setPreferredSize(new Dimension(320 * 4-10,700-50));
+		tabbedPane.setPreferredSize(new Dimension(App.WIN_W-10,App.WIN_H-40));
 		//ImageIcon icon = createImageIcon("images/middle.gif");
 
 		JComponent panel1 = makeTextPanel("Profilo: " + profile);
@@ -32,7 +33,7 @@ public class MainTabs {
 		tabbedPane.setMnemonicAt(0, MenuKeyEvent.VK_1);
 
 //EC2	//JComponent panel2 = makeTextPanel("Ec2");
-		tabbedPane.addTab("Ec2", Instances.createInstancesTab(profile,region));
+		tabbedPane.addTab("Ec2", new Instances().createInstancesTab(profile,region));
 		//tabbedPane.addTab("Tab 2", icon, panel2,"Does twice as much nothing");
 		tabbedPane.setMnemonicAt(1, MenuKeyEvent.VK_2);
 
