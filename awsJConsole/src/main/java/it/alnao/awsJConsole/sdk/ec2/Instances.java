@@ -15,6 +15,16 @@ import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.Reservation;
 
 public class Instances {
+    public static void main(String[] args) throws FileNotFoundException {
+    	System.out.println("Start");
+    	List<Instance> list=describeEC2Instances(Profiles.DEFAULT_PROFILE,null);
+    	for (Instance instance : list) {
+    	   System.out.println("Instance:" + instance.instanceId() + " " + instance.tags().get(0).value()
+    	   	+ " " + instance.instanceType() + " " + instance.state().name());
+    	}
+    	System.out.println("End");
+    }
+    
     public static List<Instance> describeEC2Instances( Ec2Client ec2){
     	ArrayList<Instance> list=new ArrayList<Instance>();
         String nextToken = null;
@@ -46,15 +56,6 @@ public class Instances {
             .build();
        List<Instance> list=describeEC2Instances(ec2);
        return list;
-    }
-    public static void main(String[] args) throws FileNotFoundException {
-    	System.out.println("Start");
-    	List<Instance> list=describeEC2Instances(Profiles.DEFAULT_PROFILE,null);
-    	for (Instance instance : list) {
-    	   System.out.println("Instance:" + instance.instanceId() + " " + instance.tags().get(0).value()
-    	   	+ " " + instance.instanceType() + " " + instance.state().name());
-    	}
-    	System.out.println("End");
     }
     
     public static TreeMap<String,String> getMapValueIntance(Instance i) {

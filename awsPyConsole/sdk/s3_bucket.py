@@ -1,0 +1,135 @@
+import boto3
+
+def bucket_list(profile_name):
+    boto3.setup_default_session(profile_name=profile_name)
+    s3_client = boto3.client("s3")
+    return s3_client.list_buckets()["Buckets"]
+    # s3 = boto3.resource('s3')
+    #    return s3.Bucket.objects.all()
+
+def object_list(bucket_name, path):
+    s3_client = boto3.client("s3")
+    #s3 = boto3.resource('s3')
+    #bucket = s3.Bucket(bucket_name)
+    response={"objects":[],"folders":[]}
+    response["objects"]=[]
+    response["folders"]=[]
+    if not path:
+        #objects = list(bucket.objects.all())
+        response = s3_client.list_objects_v2(
+            Bucket=bucket_name, Delimiter="/",
+        )
+        if "Contents" in response:
+            response["objects"]=response["Contents"]
+        if "CommonPrefixes" in response:
+            response["folders"]=response["CommonPrefixes"]
+    else:
+        #objects = list(bucket.objects.filter(Prefix=path))
+        response = s3_client.list_objects_v2(
+            Bucket=bucket_name, Delimiter="/",
+            Prefix=path,
+        )
+        if "Contents" in response:
+            response["objects"]=response["Contents"]
+        if "CommonPrefixes" in response:
+            response["folders"]=response["CommonPrefixes"]
+    return rimuovi_folder_padre(path,response)
+
+def object_list_paginator(bucket_name, path):
+    s3_client = boto3.client("s3")
+    response={"objects":[],"folders":[]}
+    response["objects"]=[]
+    response["folders"]=[]
+    s3_paginator = s3_client.get_paginator('list_objects_v2')
+    #see https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/paginator/ListObjectsV2.html
+    for page in s3_paginator.paginate(Bucket=bucket_name, Prefix=path, Delimiter='/'): #, StartAfter=start_after):
+        if "Contents" in page:
+            response["objects"]=response["objects"] + page["Contents"] #sum to append
+        if "CommonPrefixes" in page:
+            response["folders"]=response["folders"] + page["CommonPrefixes"] #sum to append
+        #for key in page.get('Contents', ()):
+        #    lista.append(key)
+            #fileName=str(key['Key']).replace(path +"/","")
+            #lastModified=key['LastModified'].strftime("%d-%m-%Y %H:%M:%S")
+            #if (fileName!=""):
+            #    lista.append({'fileName':fileName,'lastModified':lastModified,'size':key['Size']})
+    return rimuovi_folder_padre(path,response)
+
+def rimuovi_folder_padre(folder_name, list):
+    s3_client = boto3.client("s3")
+    el={}
+    to_remove=False
+    if "objects" in list:
+        for o in list["objects"]:
+            if o["Key"]==folder_name or o["Key"]==folder_name+"/" :
+                el=o
+                to_remove=True
+    if to_remove:
+        list["objects"].remove(el)
+    return list
+
+def content_object_text(bucket_name, key):
+    s3_client = boto3.client("s3")
+    content = s3_client.get_object(Bucket=bucket_name, Key=key)["Body"].iter_lines()
+    lista=[]
+    for line in content:
+        #print(line)
+        lista.append(str(line.decode("utf-8")))
+    return lista
+
+def content_object_presigned(bucket_name, key):
+    s3_client_p = boto3.client('s3',region_name="eu-west-1",config=boto3.session.Config(signature_version='s3v4',))
+    #content = s3_client_p.get_object(Bucket=bucket_name, Key=key)["Body"].iter_lines()
+    response = s3_client_p.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key':key},ExpiresIn=3600)
+    return response
+    #return {'statusCode': 200,'headers':headers,'body': json.dumps(response)}
+
+def write_test_file(bucket_name, key, body):
+    s3_client = boto3.client("s3")
+    OUT_string_encoded = body.encode("utf-8")
+    s3_client.put_object(Bucket=bucket_name, Key=key, Body=OUT_string_encoded)
+    return True
+
+def main():
+    print("Aws Py Console - S3 START")
+    print("-----------")
+    lista_b= bucket_list("default")
+    for b in lista_b:
+        print (b["Name"])
+    buck=lista_b[0]["Name"]
+    print("----------- " + buck )
+    lista_o=object_list(buck,"")
+    for o in lista_o["folders"]:
+        print (o["Prefix"]) #folder
+    for o in lista_o["objects"]:
+        print (o["Key"] ) #file LastModified, ETag , Size, StorageClass
+    folder="INPUT/" # lista_o["folders"][0]["Prefix"] #es "INPUT/"
+    print("----------- object_list: " + folder )
+    lista_o2=object_list(buck,folder) #lista_o["folders"][0]["Prefix"]
+    if "folders" in lista_o2:
+        for o in lista_o2["folders"]:
+            print (o["Prefix"]) #folder
+    if "objects" in lista_o2:
+        for o in lista_o2["objects"]:
+            print (o["Key"] ) #file LastModified, ETag , Size, StorageClass
+    print("----------- paginante: " + folder )
+    lista_op=object_list_paginator(buck, folder)
+    if "folders" in lista_op:
+        for o in lista_op["folders"]:
+            print (o["Prefix"]) #folder
+    if "objects" in lista_op:
+        for o in lista_op["objects"]:
+            print (o["Key"] ) #file LastModified, ETag , Size, StorageClass
+    f_key="INPUT/prova_py_sdk.txt"
+    f_body="Prova1\nriga 2\nprova3"
+    print("----------- scrivo il file file " + f_key)
+    write_test_file(buck, f_key, f_body)
+    print("----------- file " + f_key)
+    c=content_object_text(buck, f_key )
+    print(c)
+    print("----------- prefigned file " + f_key)
+    p=content_object_presigned(buck, f_key)
+    print(p)
+
+if __name__ == '__main__':
+    main()

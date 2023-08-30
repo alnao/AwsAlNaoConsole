@@ -9,6 +9,7 @@ import javax.swing.plaf.DimensionUIResource;
 
 import it.alnao.awsJConsole.App;
 import it.alnao.awsJConsole.window.ec2.Instances;
+import it.alnao.awsJConsole.window.s3.Buckets;
 import software.amazon.awssdk.regions.Region;
 
 //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
@@ -37,8 +38,7 @@ public class MainTabs {
 		//tabbedPane.addTab("Tab 2", icon, panel2,"Does twice as much nothing");
 		tabbedPane.setMnemonicAt(1, MenuKeyEvent.VK_2);
 
-		JComponent panel3 = makeTextPanel("S3");
-		tabbedPane.addTab("S3",panel3);
+		tabbedPane.addTab("S3",new Buckets().createInstancesTab(profile, region));
 		tabbedPane.setMnemonicAt(2, MenuKeyEvent.VK_3);
 
 		JComponent panel4 = makeTextPanel("TODO"); //(has a preferred size of 410 x 50).

@@ -56,7 +56,7 @@ class Ec2InstanceWindow:
                     values=(nome,istanza['InstanceId'],istanza['InstanceType'], istanza['State']['Name']))
                 i=i+1
         self.tree.bind("<Double-1>", self.open_detail)
-        self.tree.pack()
+        self.tree.pack(side=LEFT, expand = 1)
         self.free2_loaded=False
         #return tab
 
@@ -124,9 +124,9 @@ class Ec2InstanceWindow:
             i=i+1
         self.tree3.bind("<Double-1>", self.open_detail_tag)
         self.tree3.pack()
-        self.frame2a.pack()
-        self.frame2b.pack()
-        self.frame2.pack()
+        self.frame2a.pack(side=LEFT)
+        self.frame2b.pack(side=BOTTOM)
+        self.frame2.pack(side=LEFT)
     
     def open_detail_tag(self, event): #(frame,profilo,lista_istanze,istanza):
         self.open_window_set_tag()
