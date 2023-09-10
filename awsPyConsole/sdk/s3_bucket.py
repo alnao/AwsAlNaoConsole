@@ -90,6 +90,16 @@ def write_test_file(bucket_name, key, body):
     s3_client.put_object(Bucket=bucket_name, Key=key, Body=OUT_string_encoded)
     return True
 
+def delete_all_content_folder(bucket_name,path): #max 1000 elements deleted
+    s3_client = boto3.client("s3")
+    objects = s3_client.list_objects(Bucket=bucket_name, Prefix=path)
+    i=0
+    for object in objects['Contents']:
+        s3_client.delete_object(Bucket=bucket_name, Key=object['Key'])
+        i=i+1
+    s3_client.delete_object(Bucket=bucket_name, Key=path)
+    return i
+
 def main():
     print("Aws Py Console - S3 START")
     print("-----------")
