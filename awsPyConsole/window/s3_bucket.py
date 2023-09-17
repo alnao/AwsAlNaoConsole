@@ -6,6 +6,12 @@ from tkinter.filedialog import asksaveasfile #https://www.geeksforgeeks.org/pyth
 
 
 class BucketInstanceWindow:
+    larghezza_blocco=600
+    altezza=600
+    mol1=12/7 #larghezza colonne 
+    mol2=12/3
+    mol3=12/2
+
     def __init__(self,frame,profilo,lista_bucket,get_objects_method,get_txt_object,get_presigned_object,put_txt_object,reload_method):
         for widget in frame.winfo_children():
             widget.destroy()
@@ -24,13 +30,13 @@ class BucketInstanceWindow:
         #grid # https://www.geeksforgeeks.org/python-grid-method-in-tkinter/
         #grid see https://tkdocs.com/tutorial/grid.html
         self.frame.columnconfigure(3)
-        self.frame1 = ttk.Frame(self.frame, width=250, height=630)
+        self.frame1 = ttk.Frame(self.frame, width=self.larghezza_blocco+10, height=self.altezza)
         self.frame1.grid(row = 1, column = 1, sticky = tk.NW, padx = 2) 
         self.frame1.pack(side=LEFT, expand = 1)
-        self.frame2 = ttk.Frame(self.frame, width=325, height=630)
+        self.frame2 = ttk.Frame(self.frame, width=self.larghezza_blocco+10, height=self.altezza)
         self.frame2.grid(row = 1, column = 2, sticky = tk.NW, padx = 2) 
         self.frame2.pack(side=LEFT, expand = 1)
-        self.frame3 = ttk.Frame(self.frame, width=325, height=630)
+        self.frame3 = ttk.Frame(self.frame, width=self.larghezza_blocco+10, height=self.altezza)
         self.frame3.grid(row = 1, column = 3, sticky = tk.NW, padx = 2) 
         self.frame3.pack(side=LEFT, expand = 1)
         self.scroll = Scrollbar(self.frame1)
@@ -38,7 +44,7 @@ class BucketInstanceWindow:
         self.tree = ttk.Treeview(self.frame1,yscrollcommand=self.scroll.set,height=50)
         self.tree['columns'] = ('Nome')
         self.tree.column("#0", width=0,  stretch=NO)
-        self.tree.column("Nome", width=240)
+        self.tree.column("Nome", width=self.larghezza_blocco)
         self.tree.heading("#0",text="",anchor=CENTER)
         self.tree.heading("Nome",text="Nome",anchor=CENTER)
         i=1
@@ -72,10 +78,10 @@ class BucketInstanceWindow:
                 widget.destroy()
             self.frame2.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
             print ("refresh frame2")
-            self.frame2 = ttk.Frame(self.frame, width=325, height=630)
+            self.frame2 = ttk.Frame(self.frame, width=self.larghezza_blocco-10, height=self.altezza-10)
             self.frame2.grid(row = 1, column = 2, sticky = tk.NW, padx = 2) 
             self.frame3.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
-            self.frame3 = ttk.Frame(self.frame, width=325, height=630)
+            self.frame3 = ttk.Frame(self.frame, width=self.larghezza_blocco-10, height=self.altezza-10)
             self.frame3.grid(row = 1, column = 3, sticky = tk.NW, padx = 2) 
         Label(self.frame2, text="Bucket: " + self.bucket_name ).pack()
         self.frame2a = ttk.Frame(self.frame2,height=100)
@@ -85,7 +91,7 @@ class BucketInstanceWindow:
         self.tree2 = ttk.Treeview(self.frame2a,yscrollcommand=self.scroll2.set,height=12)
         self.tree2['columns'] = ('Cartella')
         self.tree2.column("#0", width=0,  stretch=NO)
-        self.tree2.column("Cartella", width=325)
+        self.tree2.column("Cartella", width=self.larghezza_blocco-10)
         self.tree2.heading("#0",text="",anchor=CENTER)
         self.tree2.heading("Cartella",text="Cartella",anchor=CENTER)
         i=0
@@ -103,9 +109,9 @@ class BucketInstanceWindow:
         self.tree2b = ttk.Treeview(self.frame2b,yscrollcommand=self.scroll2b.set,height=16)
         self.tree2b['columns'] = ('Nome', 'Time','Size')
         self.tree2b.column("#0", width=0,  stretch=NO)
-        self.tree2b.column("Nome", width=150)
-        self.tree2b.column("Time",anchor=CENTER,width=125)
-        self.tree2b.column("Size",anchor=CENTER,width=50)
+        self.tree2b.column("Nome", width=               int(self.larghezza_blocco/self.mol1))
+        self.tree2b.column("Time",anchor=CENTER,width=  int(self.larghezza_blocco/self.mol2))
+        self.tree2b.column("Size",anchor=CENTER,width=  int(self.larghezza_blocco/self.mol3)  )
         self.tree2b.heading("#0",text="",anchor=CENTER)
         self.tree2b.heading("Nome",text="Nome",anchor=CENTER)
         self.tree2b.heading("Time",text="Time",anchor=CENTER)
@@ -127,30 +133,6 @@ class BucketInstanceWindow:
         object=self.lista_o1["objects"][int(item)]
         self.download_file(object)
 
-    def download_file_level2(self,event):
-        item = self.tree2b.selection()[0]
-        object=self.lista_l1["objects"][int(item)]
-        self.download_file(object)
-    
-    def download_file_level2(self,object):
-        file_name=object["Key"].split("/")[-1]
-        files = [('File', file_name)]
-        file_dest = asksaveasfile(filetypes = files, defaultextension = files,initialfile =file_name)
-        print("To save file : " + file_dest.name)
-        #only text files
-        #righe=self.get_txt_object(self.bucket_name,object["Key"])
-        #with open(file_dest.name, "w") as f: # https://www.codingem.com/learn-python-how-to-write-to-a-file/
-        #    for riga in righe:
-        #        f.write(riga)
-        #        f.write("\n")
-        #print (item)
-        #download with presigned signature
-        url=self.get_presigned_object(self.bucket_name,object["Key"])
-        #with requests.get(url, stream=True) as r:
-        #    with open(file_dest.name, 'wb') as f:
-        #        shutil.copyfileobj(r.raw, f)
-        return request.urlretrieve(url, file_dest.name)
-
     def open_detail_folder_from_level1(self, event): #(frame,profilo,lista_istanze,istanza):
         item = self.tree2.selection()[0]
         folder=self.lista_o1["folders"][int(item)]
@@ -170,7 +152,7 @@ class BucketInstanceWindow:
                 files.append(o) #file Key LastModified, ETag , Size, StorageClass
         if self.free3_loaded==True:
             self.frame3.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
-            self.frame3 = ttk.Frame(self.frame, width=350, height=630)
+            self.frame3 = ttk.Frame(self.frame, width=self.larghezza_blocco, height=self.altezza-10)
         l=Label(self.frame3, text="Path: " + path )
         l.bind("<Double-1>", self.open_parent_folder_from_level2)
         l.pack()
@@ -181,7 +163,7 @@ class BucketInstanceWindow:
         self.tree3 = ttk.Treeview(self.frame3a,yscrollcommand=self.scroll3.set,height=12)
         self.tree3['columns'] = ('Cartella')
         self.tree3.column("#0", width=0,  stretch=NO)
-        self.tree3.column("Cartella", width=350)
+        self.tree3.column("Cartella", width=self.larghezza_blocco)
         self.tree3.heading("#0",text="",anchor=CENTER)
         self.tree3.heading("Cartella",text="Cartella",anchor=CENTER)
         i=0
@@ -200,9 +182,9 @@ class BucketInstanceWindow:
         self.tree3b = ttk.Treeview(self.frame3b,yscrollcommand=self.scroll3b.set,height=16)
         self.tree3b['columns'] = ('Nome', 'Time','Size')
         self.tree3b.column("#0", width=0,  stretch=NO)
-        self.tree3b.column("Nome", width=150)
-        self.tree3b.column("Time",anchor=CENTER,width=125)
-        self.tree3b.column("Size",anchor=CENTER,width=50)
+        self.tree3b.column("Nome", width=               int(self.larghezza_blocco/self.mol1))
+        self.tree3b.column("Time",anchor=CENTER,width=  int(self.larghezza_blocco/self.mol2))
+        self.tree3b.column("Size",anchor=CENTER,width=  int(self.larghezza_blocco/self.mol3))
         self.tree3b.heading("#0",text="",anchor=CENTER)
         self.tree3b.heading("Nome",text="Nome",anchor=CENTER)
         self.tree3b.heading("Time",text="Time",anchor=CENTER)
@@ -236,5 +218,30 @@ class BucketInstanceWindow:
         else:
             print("nothing to do " + path_old)
 
+    def download_file_level2(self,event):
+        item = self.tree3b.selection()[0]
+        object=self.lista_l1["objects"][int(item)]
+        self.download_file(object)
+    
+    def download_file(self,object):
+        #print( object )
+        file_name=object["Key"].split("/")[-1]
+        files = [('File', file_name)]
+        file_dest = asksaveasfile(filetypes = files, defaultextension = files,initialfile =file_name)
+        print("To save file : " + file_dest.name)
+        #only text files
+        #righe=self.get_txt_object(self.bucket_name,object["Key"])
+        #with open(file_dest.name, "w") as f: # https://www.codingem.com/learn-python-how-to-write-to-a-file/
+        #    for riga in righe:
+        #        f.write(riga)
+        #        f.write("\n")
+        #print (item)
+        #download with presigned signature
+        url=self.get_presigned_object(self.bucket_name,object["Key"])
+        #with requests.get(url, stream=True) as r:
+        #    with open(file_dest.name, 'wb') as f:
+        #        shutil.copyfileobj(r.raw, f)
+        return request.urlretrieve(url, file_dest.name)
+    
 if __name__ == '__main__':
     print("Error")

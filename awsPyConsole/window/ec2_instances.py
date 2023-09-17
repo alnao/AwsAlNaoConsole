@@ -124,8 +124,8 @@ class Ec2InstanceWindow:
             i=i+1
         self.tree3.bind("<Double-1>", self.open_detail_tag)
         self.tree3.pack()
-        self.frame2a.pack(side=LEFT)
-        self.frame2b.pack(side=BOTTOM)
+        self.frame2a.pack()
+        self.frame2b.pack()
         self.frame2.pack(side=LEFT)
     
     def open_detail_tag(self, event): #(frame,profilo,lista_istanze,istanza):

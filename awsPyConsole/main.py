@@ -14,6 +14,8 @@ from tkinter import ttk
 #see example tk https://realpython.com/python-gui-tkinter/
 
 class AwsPyConsole:
+    larghezza=1800
+    altezza=600
     def __init__(self,):
         self.profilo='default'
         self.root = tk.Tk()
@@ -21,9 +23,9 @@ class AwsPyConsole:
         #root.setvar(name ="profilo_selezionato", value ="loading")#profilo_selezionato=StringVar(root,name="profilo_selezionato",value="loading")
         # Create window
         self.root.title('Aws Py Console')
-        x=10#root.winfo_screenwidth() // 6
-        y=10#int(root.winfo_screenheight() * 0.1)
-        self.root.geometry ('1000x700+' + str(x) + "+" + str(y) ) #WIDTHxHEIGHT+TOP+LEFT
+        x=0 #ex 10 ex root.winfo_screenwidth() // 6
+        y=0 #ex 10 ex int(root.winfo_screenheight() * 0.1)
+        self.root.geometry (''+str(self.larghezza)+'x'+str(self.altezza)+'+' + str(x) + "+" + str(y) ) #WIDTHxHEIGHT+TOP+LEFT
         #get AWS profiles
         lista_profili_aws=AwsProfiles.get_lista_profili()
         #crete menu
@@ -38,15 +40,15 @@ class AwsPyConsole:
     def main_frame(self,root,profilo): #nota: funziona solo se c'è un iframe nella main
         self.profilo=profilo
         if self.profilo=="": #nessun profilo selezionato dal menu
-            self.frame1=tk.Frame(root,width=975,height=685,bg="#EEEEEE")
+            self.frame1=tk.Frame(root,width=self.larghezza-24,height=self.altezza-24,bg="#EEEEEE")
             self.frame1.grid(row=0,column=0)
             self.add_text_to_frame(self.frame1,"Selezionare un profilo") # Label(frame1, text="Selezionare un profilo").pack()
             #frame1.pack_propagate(False)
             return
-        self.frame1=tk.Frame(root,width=975,height=675,bg="#EEEEEE")
+        self.frame1=tk.Frame(root,width=self.larghezza-25,height=self.altezza-25,bg="#EEEEEE")
         self.frame1.grid(row=0,column=0)
         #tabs window
-        self.tabs = ttk.Notebook(self.frame1, width=950, height=670)
+        self.tabs = ttk.Notebook(self.frame1, width=self.larghezza-30, height=self.altezza-30)
         self.tabs.pack(fill=BOTH, expand=TRUE)
         self.frame2a = ttk.Frame(self.tabs)
         self.frame2b = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2)
