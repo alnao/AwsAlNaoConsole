@@ -1,4 +1,7 @@
 import os
+import sys
+import time
+from time import sleep
 import sdk.profiles as AwsProfiles
 import sdk.s3_bucket as AwsBucket
 import terminal.s3_bucket as s3_bucket
@@ -20,15 +23,17 @@ class AwsTerminalPyConsole:
 # metodo per la selezione di una opzione
     def select_terminal_option(self,nome_funzione,lista_opzioni,callback_selezionato):
         while True:
+            text=""
             i=0
-            print(self.separatore + nome_funzione )
-            print ("0 : Indietro alla lista dei profili, e : exit")
+            text=self.separatore + nome_funzione
+            text=text+"\n0 : Indietro alla lista dei profili, e : exit"
             for p in lista_opzioni:
                 i=i+1
-                print ( str(i) + " : " + str(p))
-            selection = input(self.separatore)
+                text=text+"\n"+ str(i) + " : " + str(p)
+            self.scrollTxt(text)
+            selection = input("\n" + self.separatore)
             if selection == "e":
-                return
+                exit()
             if selection == "0":
                 self.clear()
                 self.run_profiles_selection()
@@ -42,9 +47,11 @@ class AwsTerminalPyConsole:
                         callback_selezionato(selezionato)
                         return
                     else:
-                        print("No.. non fare lo stupido, valore non ammesso")
+                        self.clear()
+                        print("No.. non fare lo stupido, valore non ammesso: " + selection)
                 except ValueError:
-                    print("No.. non fare lo stupido, valore non numerico")
+                    self.clear()
+                    print("No.. non fare lo stupido, valore non numerico: " + selection)
 #metodi per i profili
     def run_profiles_selection(self,):
         self.select_terminal_option("Seleziona il profilo",self.lista_profili_aws,self.profiles_selection)
@@ -64,9 +71,16 @@ class AwsTerminalPyConsole:
                 self.profilo_selezionato,
                 self.select_terminal_option,
                 AwsBucket.bucket_list,
-                AwsBucket.object_list_paginator
+                AwsBucket.object_list_paginator,
+                AwsBucket.content_object_presigned
             )     
-    
-
+        
+    def scrollTxt(self,text):
+        for char in text:
+            sys.stdout.write(char)
+            sys.stdout.flush()
+            time.sleep(0.01)
+            
 if __name__ == '__main__':
     AwsTerminalPyConsole()
+
