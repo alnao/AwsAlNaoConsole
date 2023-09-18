@@ -6,7 +6,7 @@ from tkinter.filedialog import asksaveasfile #https://www.geeksforgeeks.org/pyth
 
 
 class BucketInstanceWindow:
-    larghezza_blocco=600
+    larghezza_blocco=450
     altezza=600
     mol1=12/7 #larghezza colonne 
     mol2=12/3
@@ -153,7 +153,7 @@ class BucketInstanceWindow:
         if self.free3_loaded==True:
             self.frame3.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
             self.frame3 = ttk.Frame(self.frame, width=self.larghezza_blocco, height=self.altezza-10)
-        l=Label(self.frame3, text="Path: " + path )
+        l=Label(self.frame3, text="Path: " + path )# (click to ../)
         l.bind("<Double-1>", self.open_parent_folder_from_level2)
         l.pack()
         self.frame3a = ttk.Frame(self.frame3,height=100)
@@ -173,9 +173,10 @@ class BucketInstanceWindow:
         self.tree3.bind("<Double-1>", self.open_detail_folder_from_level2)
         self.tree3.pack()
         self.frame3b = ttk.Frame(self.frame3)
-        l_name= Label(self.frame3b,text="Path: " + path  )
+        l_name= Label(self.frame3b,text="(click to upload) ") # + path  )
+        self.path_selezionato=path
+        l_name.bind("<Double-1>", self.upload_file_level2 )
         l_name.pack()
-        #l_name.bind("<Button-1>", lambda e:self.open_window_set_tag())
         self.scroll3b = Scrollbar(self.frame3b)
         self.scroll3b.pack(side=RIGHT, fill=Y)
 
@@ -217,6 +218,11 @@ class BucketInstanceWindow:
             self.open_detail_folder(path_new,path_old)
         else:
             print("nothing to do " + path_old)
+    
+    def upload_file_level2(self, event):
+        item = self.path_selezionato
+        print(item)
+        print("TODO")
 
     def download_file_level2(self,event):
         item = self.tree3b.selection()[0]

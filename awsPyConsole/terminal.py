@@ -4,17 +4,25 @@ import time
 from time import sleep
 import sdk.profiles as AwsProfiles
 import sdk.s3_bucket as AwsBucket
-import terminal.s3_bucket as s3_bucket
+import sdk.cloudwatch as AwsCloudWatch
+import terminal.s3_bucket as T_s3_bucket
+import terminal.cloudwatch as T_cloudwatch
+
 
 class AwsTerminalPyConsole:
     separatore="------------------- "
     lista_profili_aws=[]
     profilo_selezionato=""
-    funzioni_disponibili=["Bucket s3","Istanze Ec2"]
+    funzioni_disponibili=["Bucket s3","Istanze Ec2","CloudWatch"]
 
     def clear(self,):
-        os.system('cls') # Clear screen for windows
-        os.system('clear')
+        try:
+            os.system('cls') # Clear screen for windows
+        except: 
+            try:
+                os.system('clear')
+            except: 
+                print("impossile da pulire")
 
     def __init__(self,):
         self.lista_profili_aws=AwsProfiles.get_lista_profili()
@@ -62,12 +70,16 @@ class AwsTerminalPyConsole:
         self.select_terminal_option("Seleziona cosa fare",self.funzioni_disponibili,self.enter_service)
 
     def enter_service(self,servizio_selezionato):
-        if servizio_selezionato==self.funzioni_disponibili[1]:
-            print("Servizio selezionato : Ec2 TODO") 
-            #TODO
+        if servizio_selezionato=="CloudWatch":
+            T_cloudwatch.CloudWatchInstanceTerminal(
+                self.profilo_selezionato,
+                self.select_terminal_option,
+                AwsCloudWatch.get_metrics,
+                AwsCloudWatch.get_metric_log
+            )
         if servizio_selezionato==self.funzioni_disponibili[0]:
             #print ("Servizio selezionato : S3")
-            s3_bucket.BucketInstanceTerminal(
+            T_s3_bucket.BucketInstanceTerminal(
                 self.profilo_selezionato,
                 self.select_terminal_option,
                 AwsBucket.bucket_list,
@@ -79,7 +91,7 @@ class AwsTerminalPyConsole:
         for char in text:
             sys.stdout.write(char)
             sys.stdout.flush()
-            time.sleep(0.01)
+            time.sleep(0)
             
 if __name__ == '__main__':
     AwsTerminalPyConsole()

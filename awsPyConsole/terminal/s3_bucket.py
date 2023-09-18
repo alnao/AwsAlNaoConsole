@@ -15,10 +15,11 @@ class BucketInstanceTerminal:
 
     def __init__(self,profilo,select_terminal_option,load_profile_method,load_path_method,get_presigned_object_method):
         self.profilo=profilo
-        self.lista_bucket=load_profile_method(profilo)
         self.load_path_method=load_path_method
         self.get_presigned_object_method=get_presigned_object_method
         self.select_terminal_option=select_terminal_option
+        #load bucket
+        self.lista_bucket=load_profile_method(profilo)
         self.show_bucket_list()
 
     def show_bucket_list(self):
