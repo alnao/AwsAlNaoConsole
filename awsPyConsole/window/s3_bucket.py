@@ -12,7 +12,8 @@ class BucketInstanceWindow:
     mol2=12/3
     mol3=12/2
 
-    def __init__(self,frame,profilo,lista_bucket,get_objects_method,get_txt_object,get_presigned_object,put_txt_object,reload_method):
+    def __init__(self,frame,profilo,lista_bucket,get_objects_method,get_txt_object,get_presigned_object,put_txt_object,reload_method
+                 ,bucketDefault,pathDefault):
         for widget in frame.winfo_children():
             widget.destroy()
         self.lista_bucket=lista_bucket
@@ -23,10 +24,13 @@ class BucketInstanceWindow:
         self.get_presigned_object=get_presigned_object
         self.put_txt_object=put_txt_object
         self.reload_method=reload_method
-        self.crea_window()
+        self.bucketDefault=bucketDefault
+        self.pathDefault=pathDefault
+        self.crea_window(bucketDefault,pathDefault)
         self.lista_o1=[]
 
-    def crea_window(self):
+
+    def crea_window(self,bucketDefault,pathDefault):
         #grid # https://www.geeksforgeeks.org/python-grid-method-in-tkinter/
         #grid see https://tkdocs.com/tutorial/grid.html
         self.frame.columnconfigure(3)
@@ -55,11 +59,25 @@ class BucketInstanceWindow:
         self.tree.pack()
         self.free2_loaded=False
         self.free3_loaded=False
+        #seleziono se arriva un Default
+        if self.bucketDefault != "" :
+            i=1
+            for b in self.lista_bucket:
+                if self.bucketDefault==b["Name"]:
+                    child_id=self.tree.get_children()[i-1]
+                    self.tree.focus(child_id)
+                    self.tree.selection_set(child_id)
+                    self.bucket_name = self.bucketDefault
+                    self.open_detail_bucket_with_name("",self.bucketDefault)
+                i=i+1
         #return tab
 
     def open_detail_bucket(self, event): #(frame,profilo,lista_istanze,istanza):
         item = self.tree.selection()[0]
         self.bucket_name = self.tree.item(item)['values'][0]
+        self.open_detail_bucket_with_name(event,self.bucket_name)
+
+    def open_detail_bucket_with_name(self, event,bucket_name): #(frame,profilo,lista_istanze,istanza):
         #print ("Apro "+ self.bucket_name)
         self.lista_o1=self.get_objects_method(self.bucket_name,"")
         folders=[]
@@ -127,6 +145,17 @@ class BucketInstanceWindow:
         self.frame2b.pack(side=BOTTOM)
         self.frame2.pack(side=LEFT, expand = 1)
         self.frame3.pack(side=LEFT, expand = 1)
+        print("pathDefault" + self.pathDefault )
+        if self.pathDefault != "":
+            i=1
+            print( folders )
+            for f in folders:
+                if f == self.pathDefault +"/" :
+                    child_id=self.tree2.get_children()[i-1]
+                    self.tree2.focus(child_id)
+                    self.tree2.selection_set(child_id)
+                    self.open_detail_folder(f,"")
+                i=i+1
 
     def download_file_level1(self,event):
         item = self.tree2b.selection()[0]
@@ -135,6 +164,9 @@ class BucketInstanceWindow:
 
     def open_detail_folder_from_level1(self, event): #(frame,profilo,lista_istanze,istanza):
         item = self.tree2.selection()[0]
+        if not "folders" in self.lista_o1:
+            print("ERRORE folders vuoto ricarico")
+            self.lista_o1=self.get_objects_method(self.bucket_name,"")
         folder=self.lista_o1["folders"][int(item)]
         self.path_opened = folder["Prefix"]
         self.open_detail_folder(self.path_opened,"")
