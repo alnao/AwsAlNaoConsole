@@ -60,7 +60,7 @@ class CloudWatchWindow:
             for widget in self.frame2.winfo_children():
                 widget.destroy()
             self.frame2.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
-            print ("refresh frame2")
+            #print ("refresh frame2")
             self.frame2 = ttk.Frame(self.frame, width=self.larghezza_blocco2-10, height=self.altezza-10)
             self.frame2.grid(row = 1, column = 2, sticky = tk.NW, padx = 2) 
 

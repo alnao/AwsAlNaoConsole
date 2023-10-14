@@ -95,7 +95,7 @@ class BucketInstanceWindow:
             for widget in self.frame3.winfo_children():
                 widget.destroy()
             self.frame2.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
-            print ("refresh frame2")
+            #print ("refresh frame2")
             self.frame2 = ttk.Frame(self.frame, width=self.larghezza_blocco-10, height=self.altezza-10)
             self.frame2.grid(row = 1, column = 2, sticky = tk.NW, padx = 2) 
             self.frame3.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
@@ -145,10 +145,10 @@ class BucketInstanceWindow:
         self.frame2b.pack(side=BOTTOM)
         self.frame2.pack(side=LEFT, expand = 1)
         self.frame3.pack(side=LEFT, expand = 1)
-        print("pathDefault" + self.pathDefault )
+        #print("pathDefault" + self.pathDefault )
         if self.pathDefault != "":
             i=1
-            print( folders )
+            #print( folders )
             for f in folders:
                 if f == self.pathDefault +"/" :
                     child_id=self.tree2.get_children()[i-1]

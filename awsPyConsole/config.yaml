@@ -1,0 +1,7 @@
+default:
+  bucket1: alberto-input
+  path1: INCOMING
+  bucket2: alberto-input
+  path2: OUTGOING
+  bucket3: formazione-sftp-simulator
+  path3: ''

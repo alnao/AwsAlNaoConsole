@@ -11,18 +11,17 @@ import window.cloudwatch as w_cloudwatch
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
-
+import yaml
 
 #see example tk https://realpython.com/python-gui-tkinter/
 
 class AwsPyConsole:
     larghezza=1500
     altezza=700
-    def __init__(self,bucket1,path1):
+    def __init__(self,configuration):
         self.profilo='default'
         self.root = tk.Tk()
-        self.bucket1=bucket1
-        self.path1=path1
+        self.configuration=configuration
         # Create window
         self.root.title('Aws Py Console')
         x=0 #ex 10 ex root.winfo_screenwidth() // 6
@@ -32,14 +31,14 @@ class AwsPyConsole:
         lista_profili_aws=AwsProfiles.get_lista_profili()
         #crete menu
         menu.create_menu(self.root,lista_profili_aws,self.load_profile)
-        self.main_frame(self.root,"",bucket1,path1)
+        self.main_frame(self.root,"")
         self.root.mainloop()
         
     def add_text_to_frame(self,frame,text):
         Label(frame, text=text).pack()
         frame.pack_propagate(False)
 
-    def main_frame(self,root,profilo,bucket1,path1): #nota: funziona solo se c'è un iframe nella main
+    def main_frame(self,root,profilo): #nota: funziona solo se c'è un iframe nella main
         self.profilo=profilo
         if self.profilo=="": #nessun profilo selezionato dal menu
             self.frame1=tk.Frame(root,width=self.larghezza-24,height=self.altezza-24,bg="#EEEEEE")
@@ -47,6 +46,12 @@ class AwsPyConsole:
             self.add_text_to_frame(self.frame1,"Selezionare un profilo") # Label(frame1, text="Selezionare un profilo").pack()
             #frame1.pack_propagate(False)
             return
+        profilo_conf={}
+        profilo_con_conf=False
+        for e in self.configuration:
+            if e==self.profilo:
+                profilo_conf=self.configuration[e]
+                profilo_con_conf=True
         self.frame1=tk.Frame(root,width=self.larghezza-25,height=self.altezza-25,bg="#EEEEEE")
         self.frame1.grid(row=0,column=0)
         #tabs window
@@ -55,7 +60,6 @@ class AwsPyConsole:
         self.frameT_profile = ttk.Frame(self.tabs)
         self.frameT_ec2 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2)
         self.frameT_s3  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2c
-        self.frameT_s3_b = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2d
         self.frameT_cloudWatch = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
         self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
@@ -67,9 +71,26 @@ class AwsPyConsole:
         self.tabs.add(self.frameT_s3, text="S3")
         self.add_text_to_frame(self.frameT_s3,"Lista bucket del profilo "+self.profilo)
         self.load_s3_instance_window(self.frameT_s3,"","")
-        self.tabs.add(self.frameT_s3_b, text="S3 " + path1)
-        self.add_text_to_frame(self.frameT_s3_b,"S3 " + path1 + " "+self.profilo)
-        self.load_s3_instance_window(self.frameT_s3_b,bucket1,path1)
+        if profilo_con_conf:
+            if 'bucket1' in profilo_conf:
+                self.frameT_s3_1 = ttk.Frame(self.tabs)
+                label=profilo_conf['path1'] if len(profilo_conf['path1'])>0 else profilo_conf['bucket1']
+                self.tabs.add(self.frameT_s3_1, text="S3 " + label)
+                self.add_text_to_frame(self.frameT_s3_1,"S3 " + label + " "+self.profilo)
+                self.load_s3_instance_window(self.frameT_s3_1,profilo_conf['bucket1'],profilo_conf['path1'])
+            if 'bucket2' in profilo_conf:
+                self.frameT_s3_2 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2d
+                label=profilo_conf['path2'] if len(profilo_conf['path2'])>0 else profilo_conf['bucket2']
+                self.tabs.add(self.frameT_s3_2, text="S3 " + label)
+                self.add_text_to_frame(self.frameT_s3_2,"S3 " + label + " "+self.profilo)
+                self.load_s3_instance_window(self.frameT_s3_2,profilo_conf['bucket2'],profilo_conf['path2'])
+            if 'bucket3' in profilo_conf:
+                self.frameT_s3_3 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2d
+                label=profilo_conf['path3'] if len(profilo_conf['path3'])>0 else profilo_conf['bucket3']
+                self.tabs.add(self.frameT_s3_3, text="S3 " + label)
+                self.add_text_to_frame(self.frameT_s3_3,"S3 " + label + " "+self.profilo)
+                self.load_s3_instance_window(self.frameT_s3_3,profilo_conf['bucket3'],profilo_conf['path3'])
+        
         self.tabs.add(self.frameT_cloudWatch, text="CloudWatch")
         self.add_text_to_frame(self.frameT_cloudWatch,"CloudWatch del profilo "+self.profilo)
         self.load_cloudwatch_instance_window(self.frameT_cloudWatch)
@@ -77,7 +98,7 @@ class AwsPyConsole:
 
 #PROFILE
     def load_profile(self,root,profilo):
-        self.main_frame(root,profilo,self.bucket1,self.path1)
+        self.main_frame(root,profilo)
 #S3
     def load_s3_instance_window(self,frame,bucket,path):
         frame.pack_propagate(False)
@@ -122,4 +143,5 @@ class AwsPyConsole:
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':
-    AwsPyConsole("nome-bucket","path")
+    config = yaml.safe_load(open("./config.yaml"))
+    AwsPyConsole(config)
