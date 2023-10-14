@@ -3,7 +3,7 @@ from tkinter import *
 import tkinter as tk
 from  tkinter import ttk
 from tkinter.filedialog import asksaveasfile #https://www.geeksforgeeks.org/python-asksaveasfile-function-in-tkinter/
-
+from functools import partial
 
 class BucketInstanceWindow:
     larghezza_blocco=450
@@ -12,10 +12,11 @@ class BucketInstanceWindow:
     mol2=12/3
     mol3=12/2
 
-    def __init__(self,frame,profilo,lista_bucket,get_objects_method,get_txt_object,get_presigned_object,put_txt_object,reload_method
+    def __init__(self,frame,profilo,configuration,lista_bucket,get_objects_method,get_txt_object,get_presigned_object,put_txt_object,reload_method
                  ,bucketDefault,pathDefault):
         for widget in frame.winfo_children():
             widget.destroy()
+        self.configuration=configuration
         self.lista_bucket=lista_bucket
         self.profilo=profilo
         self.frame=frame
@@ -45,7 +46,7 @@ class BucketInstanceWindow:
         self.frame3.pack(side=LEFT, expand = 1)
         self.scroll = Scrollbar(self.frame1)
         self.scroll.pack(side=RIGHT, fill=Y)
-        self.tree = ttk.Treeview(self.frame1,yscrollcommand=self.scroll.set,height=50)
+        self.tree = ttk.Treeview(self.frame1,yscrollcommand=self.scroll.set,height=30)
         self.tree['columns'] = ('Nome')
         self.tree.column("#0", width=0,  stretch=NO)
         self.tree.column("Nome", width=self.larghezza_blocco)
@@ -70,7 +71,43 @@ class BucketInstanceWindow:
                     self.bucket_name = self.bucketDefault
                     self.open_detail_bucket_with_name("",self.bucketDefault)
                 i=i+1
+        #gestione S3 indicati nel file di configurazione , aggiungo bottoni e metodo e per aprirli
+        if self.profilo in self.configuration:
+            if 's3' in self.configuration[self.profilo]:
+                self.frame1b = ttk.Frame(self.frame1, width=self.larghezza_blocco+10, height=30)
+                self.frame1b.columnconfigure( len(self.configuration[self.profilo]['s3']) )
+                #self.frame1b.grid(row = 1, column = len(self.configuration[self.profilo]['s3']), sticky = tk.NW, padx = 2) 
+                for e in self.configuration[self.profilo]['s3']:
+                    Button(self.frame1b, text = e['label'], #command=lambda: self.open_bucket_from_config_file( e )
+                        command=partial(self.open_bucket_from_config_file , e )
+                    ).pack(side=tk.LEFT)
+                self.frame1b.pack(side=LEFT, expand = 1)
+                
         #return tab
+
+    #metodo per selezionare un bucket e un path a paritre da un bottone
+    def open_bucket_from_config_file(self,row):
+        self.bucket_name = row['bucket']
+        self.open_detail_bucket_with_name(False,self.bucket_name)
+        self.path_opened = row['path']+"/"
+        i=1
+        for b in self.lista_bucket:
+            if b["Name"] == self.bucket_name :
+                child_id=self.tree.get_children()[i-1]
+                self.tree.focus(child_id)
+                self.tree.selection_set(child_id)
+            i=i+1
+        if len(self.path_opened)>1:
+            self.open_detail_folder(self.path_opened,"")
+            i=1
+            for f in self.folders:
+                if f == self.path_opened :
+                    child_id=self.tree2.get_children()[i-1]
+                    self.tree2.focus(child_id)
+                    self.tree2.selection_set(child_id)
+                i=i+1
+        
+
 
     def open_detail_bucket(self, event): #(frame,profilo,lista_istanze,istanza):
         item = self.tree.selection()[0]
@@ -80,11 +117,11 @@ class BucketInstanceWindow:
     def open_detail_bucket_with_name(self, event,bucket_name): #(frame,profilo,lista_istanze,istanza):
         #print ("Apro "+ self.bucket_name)
         self.lista_o1=self.get_objects_method(self.bucket_name,"")
-        folders=[]
+        self.folders=[]
         files=[]
         if "folders" in self.lista_o1:
             for o in self.lista_o1["folders"]:
-                folders.append(o["Prefix"]) #folder
+                self.folders.append(o["Prefix"]) #folder
         if "objects" in self.lista_o1:
             for o in self.lista_o1["objects"]:
                 files.append(o) #file Key LastModified, ETag , Size, StorageClass
@@ -113,7 +150,7 @@ class BucketInstanceWindow:
         self.tree2.heading("#0",text="",anchor=CENTER)
         self.tree2.heading("Cartella",text="Cartella",anchor=CENTER)
         i=0
-        for f in folders:
+        for f in self.folders:
             self.tree2.insert(parent='',index='end',iid=i,text='',values=(f) )
             i=i+1
         self.tree2.bind("<Double-1>", self.open_detail_folder_from_level1)
@@ -149,7 +186,7 @@ class BucketInstanceWindow:
         if self.pathDefault != "":
             i=1
             #print( folders )
-            for f in folders:
+            for f in self.folders:
                 if f == self.pathDefault +"/" :
                     child_id=self.tree2.get_children()[i-1]
                     self.tree2.focus(child_id)

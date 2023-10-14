@@ -75,7 +75,7 @@ def get_metric_log(profile_name,group_name,hours):
     return response["results"]
 
 def main():
-    print("Aws Py Console - Ec2 Instances START")
+    print("Aws Py Console - CloudWatch START")
     lista= get_metrics("default")
     if len(lista)>0:
         print (lista[0])

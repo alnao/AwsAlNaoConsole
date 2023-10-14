@@ -5,9 +5,11 @@ import sdk.profiles as AwsProfiles
 import sdk.ec2_instances as AwsInstances
 import sdk.s3_bucket as AwsBucket
 import sdk.cloudwatch as AwsCloudwatch
+import sdk.cloudfront as AWSCloudfront
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
+import window.cloudfront as w_cloudfront
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -61,6 +63,7 @@ class AwsPyConsole:
         self.frameT_ec2 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2)
         self.frameT_s3  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2c
         self.frameT_cloudWatch = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_cloudFront = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
         self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
         self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
@@ -71,30 +74,15 @@ class AwsPyConsole:
         self.tabs.add(self.frameT_s3, text="S3")
         self.add_text_to_frame(self.frameT_s3,"Lista bucket del profilo "+self.profilo)
         self.load_s3_instance_window(self.frameT_s3,"","")
-        if profilo_con_conf:
-            if 'bucket1' in profilo_conf:
-                self.frameT_s3_1 = ttk.Frame(self.tabs)
-                label=profilo_conf['path1'] if len(profilo_conf['path1'])>0 else profilo_conf['bucket1']
-                self.tabs.add(self.frameT_s3_1, text="S3 " + label)
-                self.add_text_to_frame(self.frameT_s3_1,"S3 " + label + " "+self.profilo)
-                self.load_s3_instance_window(self.frameT_s3_1,profilo_conf['bucket1'],profilo_conf['path1'])
-            if 'bucket2' in profilo_conf:
-                self.frameT_s3_2 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2d
-                label=profilo_conf['path2'] if len(profilo_conf['path2'])>0 else profilo_conf['bucket2']
-                self.tabs.add(self.frameT_s3_2, text="S3 " + label)
-                self.add_text_to_frame(self.frameT_s3_2,"S3 " + label + " "+self.profilo)
-                self.load_s3_instance_window(self.frameT_s3_2,profilo_conf['bucket2'],profilo_conf['path2'])
-            if 'bucket3' in profilo_conf:
-                self.frameT_s3_3 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2d
-                label=profilo_conf['path3'] if len(profilo_conf['path3'])>0 else profilo_conf['bucket3']
-                self.tabs.add(self.frameT_s3_3, text="S3 " + label)
-                self.add_text_to_frame(self.frameT_s3_3,"S3 " + label + " "+self.profilo)
-                self.load_s3_instance_window(self.frameT_s3_3,profilo_conf['bucket3'],profilo_conf['path3'])
-        
         self.tabs.add(self.frameT_cloudWatch, text="CloudWatch")
         self.add_text_to_frame(self.frameT_cloudWatch,"CloudWatch del profilo "+self.profilo)
-        self.load_cloudwatch_instance_window(self.frameT_cloudWatch)
+        self.load_cloudwatch_window(self.frameT_cloudWatch)
+        self.tabs.add(self.frameT_cloudFront, text="CloudFront")
+        self.add_text_to_frame(self.frameT_cloudFront,"CloudFront del profilo "+self.profilo)
+        self.load_cloudfront_window(self.frameT_cloudFront)
+
         self.tabs.pack(expand=1, fill="both")
+
 
 #PROFILE
     def load_profile(self,root,profilo):
@@ -102,7 +90,7 @@ class AwsPyConsole:
 #S3
     def load_s3_instance_window(self,frame,bucket,path):
         frame.pack_propagate(False)
-        w_s3_bucket.BucketInstanceWindow(frame,self.profilo
+        w_s3_bucket.BucketInstanceWindow(frame,self.profilo,self.configuration
             ,AwsBucket.bucket_list(self.profilo)
             ,AwsBucket.object_list_paginator
             ,AwsBucket.content_object_text
@@ -130,18 +118,32 @@ class AwsPyConsole:
         self.load_ec2_instance_window()
         #self.tabs.pack(expand=1, fill="both")
 #Cloudwatch
-    def load_cloudwatch_instance_window(self,frame):
+    def load_cloudwatch_window(self,frame):
         frame.pack_propagate(False)
         w_cloudwatch.CloudWatchWindow(frame,self.profilo
             , AwsCloudwatch.get_metrics(self.profilo)
             , AwsCloudwatch.get_metric_log
-            ,self.reload_cloudwatch_instance_window )
-    def reload_cloudwatch_instance_window(self,frame):#print ("reload_s3_instance_window")
+            ,self.reload_cloudwatch_window )
+    def reload_cloudwatch_window(self,frame):#print ("reload_s3_instance_window")
         for widget in frame.winfo_children():
             widget.destroy()
-        self.load_cloudwatch_instance_window(frame)
+        self.load_cloudwatch_window(frame)
+#CloudFront
+    def load_cloudfront_window(self,frame):
+        frame.pack_propagate(False)
+        w_cloudfront.CloudFrontInstanceWindow(frame,self.profilo,
+            AWSCloudfront.list_distributions(self.profilo),
+            AWSCloudfront.get_distribution,
+            AWSCloudfront.invalid_distribuzion,
+            self.reload_cloudfront_window )
+        
+    def reload_cloudfront_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_cloudfront_window(frame)
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':
     config = yaml.safe_load(open("./config.yaml"))
+    print(config)
     AwsPyConsole(config)
