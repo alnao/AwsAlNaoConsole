@@ -6,10 +6,12 @@ import sdk.ec2_instances as AwsInstances
 import sdk.s3_bucket as AwsBucket
 import sdk.cloudwatch as AwsCloudwatch
 import sdk.cloudfront as AWSCloudfront
+import sdk.stepfunctions as AWSstepfunctions
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
 import window.cloudfront as w_cloudfront
+import window.stepfunctions as w_stepfunctions
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -64,6 +66,7 @@ class AwsPyConsole:
         self.frameT_s3  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2c
         self.frameT_cloudWatch = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_cloudFront = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_stepFunctions = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
         self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
         self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
@@ -80,9 +83,10 @@ class AwsPyConsole:
         self.tabs.add(self.frameT_cloudFront, text="CloudFront")
         self.add_text_to_frame(self.frameT_cloudFront,"CloudFront del profilo "+self.profilo)
         self.load_cloudfront_window(self.frameT_cloudFront)
-
+        self.tabs.add(self.frameT_stepFunctions, text="StepFunctions")
+        self.add_text_to_frame(self.frameT_stepFunctions,"StepFunctions del profilo "+self.profilo)
+        self.load_stepfunction_window(self.frameT_stepFunctions)
         self.tabs.pack(expand=1, fill="both")
-
 
 #PROFILE
     def load_profile(self,root,profilo):
@@ -141,6 +145,21 @@ class AwsPyConsole:
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_cloudfront_window(frame)
+#step functions
+    def load_stepfunction_window(self,frame):
+        frame.pack_propagate(False)
+        w_stepfunctions.StepFunctionsWindow(frame,self.profilo,"",#selezionato,lista,dettaglio,esecuzioni,ececusione_dett,esegui,reload_method)
+            AWSstepfunctions.state_machine_list(self.profilo),
+            AWSstepfunctions.state_machine_detail,
+            AWSstepfunctions.state_machine_execution,
+            AWSstepfunctions.state_machine_execution_detail,
+            AWSstepfunctions.state_machine_start,
+            self.reload_stepfunction_window )
+        
+    def reload_stepfunction_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_stepfunction_window(frame)
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':
