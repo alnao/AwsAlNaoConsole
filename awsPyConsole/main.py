@@ -7,15 +7,17 @@ import sdk.s3_bucket as AwsBucket
 import sdk.cloudwatch as AwsCloudwatch
 import sdk.cloudfront as AWSCloudfront
 import sdk.stepfunctions as AWSstepfunctions
+import sdk.eventbridge as AWSeventBridge
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
 import window.cloudfront as w_cloudfront
 import window.stepfunctions as w_stepfunctions
+import window.eventbridge as w_eventBridge
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
-import yaml
+import yaml #pip install pyyaml
 
 #see example tk https://realpython.com/python-gui-tkinter/
 
@@ -67,6 +69,7 @@ class AwsPyConsole:
         self.frameT_cloudWatch = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_cloudFront = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_stepFunctions = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_eventBridge  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
         self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
         self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
@@ -86,6 +89,10 @@ class AwsPyConsole:
         self.tabs.add(self.frameT_stepFunctions, text="StepFunctions")
         self.add_text_to_frame(self.frameT_stepFunctions,"StepFunctions del profilo "+self.profilo)
         self.load_stepfunction_window(self.frameT_stepFunctions)
+        self.tabs.pack(expand=1, fill="both")
+        self.tabs.add(self.frameT_eventBridge, text="EventBridge")
+        self.add_text_to_frame(self.frameT_eventBridge,"EventBridge del profilo "+self.profilo)
+        self.load_eventBridge_window(self.frameT_eventBridge)
         self.tabs.pack(expand=1, fill="both")
 
 #PROFILE
@@ -160,9 +167,31 @@ class AwsPyConsole:
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_stepfunction_window(frame)
+#eventbridge load_eventBridge_window
+    def load_eventBridge_window(self,frame):
+        frame.pack_propagate(False)
+        w_eventBridge.EventBridgeWindow(frame,self.profilo,"",#selezionato,lista,dettaglio,disattiva,attiva,reload_method)
+            AWSeventBridge.get_lista_regole(self.profilo,""),
+            AWSeventBridge.describe_rule,
+            AWSeventBridge.disable_role,
+            AWSeventBridge.enable_role,
+            self.reload_eventBridge_window )
+        
+    def reload_eventBridge_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_eventBridge_window(frame)
+
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':
-    config = yaml.safe_load(open("./config.yaml"))
-    print(config)
+    try:
+        config = yaml.safe_load(open("./config.yaml"))
+    except: 
+        try:
+            config = yaml.safe_load(open("C:\\Transito\\000_FILES\\configConsole.yaml"))
+        except: 
+            print("Nessun file di configurazione")
+            config = {}
+    #print(config)
     AwsPyConsole(config)

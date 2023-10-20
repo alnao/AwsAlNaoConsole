@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter as tk
 from  tkinter import ttk
+import json 
 
 class StepFunctionsWindow:
     def __init__(self,frame,profilo,selezionato,lista,dettaglio,esecuzioni,esecuzione_dett,esegui,reload_method):
@@ -35,7 +36,7 @@ class StepFunctionsWindow:
         self.tree = ttk.Treeview(self.frame1,yscrollcommand=self.scroll.set,height=50)
         self.tree['columns'] = ('Nome', 'Tipo')
         self.tree.column("#0", width=0,  stretch=NO)
-        self.tree.column("Nome", width=240)
+        self.tree.column("Nome", width=350)
         self.tree.column("Tipo",width=80)
         self.tree.heading("#0",text="",anchor=CENTER)
         self.tree.heading("Nome",text="Nome",anchor=CENTER)
@@ -89,6 +90,7 @@ class StepFunctionsWindow:
             i=i+1
         self.tree2.pack()
         self.frame2b = ttk.Frame(self.frame2)
+        Button(self.frame2b, text = "Definizione", command=self.show_definition).pack()
         l_name= Label(self.frame2b, text="Esecuzioni" )
         l_name.pack()
         #l_name.bind("<Button-1>", lambda e:self.open_window_set_tag())
@@ -117,53 +119,27 @@ class StepFunctionsWindow:
             # 'startDate': datetime.datetime(2023, 10, 17, 14, 57, 17, 318000, tzinfo=tzlocal()), 
             # 'stopDate': datetime.datetime(2023, 10, 17, 14, 57, 17, 704000, tzinfo=tzlocal())}
             i=i+1
-        self.tree3.bind("<Double-1>", self.open_detail_tag)
+        self.tree3.bind("<Double-1>", self.show_definition)
         self.tree3.pack()
         self.frame2a.pack()
         self.frame2b.pack()
         self.frame2.pack(side=LEFT)
     
-    def open_detail_tag(self, event): #(frame,profilo,lista_istanze,istanza):
-        self.open_window_set_tag()
-        item = self.tree3.selection()[0]
-        print (item)
-        key = self.tree3.item(item)['values'][0]
-        value = self.tree3.item(item)['values'][1]
-        self.e1.insert(0,key)
-        self.e2.insert(0,value)#item = self.tree.selection()[0]
-
-    def open_window_set_tag(self): #https://www.geeksforgeeks.org/python-grid-method-in-tkinter/
+    def show_definition(self): #(frame,profilo,lista_istanze,istanza):
+        #self.open_window_set_tag()
+        s=""
+        for key in self.dettaglio_valore :
+            if key=='definition':
+                s = self.dettaglio_valore[key]
+        s=s.replace("\n","").replace("'","ß").replace("\\\"","'").replace("\"","'").replace("ß","\"")#.replace(" ","").replace("\\\"","\"")
         w_tag_child=Toplevel(self.frame2) # Child window 
-        #x=root.winfo_screenwidth() // 6
-        #y=int(root.winfo_screenheight() * 0.1)
-        w_tag_child.geometry("400x200")#+ str(x) + "+" + str(y))  # Size of the window 
-        w_tag_child.title("Set tag to " + self.nome)
-        #Label(w_tag_child, text="Set tag to " + self.nome ).pack()
-        # this will create a label widget
-        l1 = Label(w_tag_child, text = "Key:")
-        l2 = Label(w_tag_child, text = "Value:")
-        # grid method to arrange labels in respective
-        # rows and columns as specified
-        l1.grid(row = 0, column = 0, sticky = W, pady = 2)
-        l2.grid(row = 1, column = 0, sticky = W, pady = 2)
-        # entry widgets, used to take entry from user
-        self.e1 = Entry(w_tag_child)
-        self.e2 = Entry(w_tag_child)
-        # this will arrange entry widgets
-        self.e1.grid(row = 0, column = 1, pady = 2)
-        self.e2.grid(row = 1, column = 1, pady = 2)
-        b1 = Button(w_tag_child, text = "Save", command=self.send_set_tag)
-        b1.grid(row = 2, column = 1, sticky = E)
-        
-    def send_set_tag(self):        #https://stackhowto.com/how-to-get-value-from-entry-on-button-click-in-tkinter/
-        self.set_tag_method(self.istanza['InstanceId'], self.e1.get(), self.e2.get() )
-        self.reload_method()
-    def send_stop(self):
-        self.stop_method(self.istanza['InstanceId'])
-        self.reload_method()
-    def send_start(self):
-        self.start_method(self.istanza['InstanceId'])
-        self.reload_method()
+        w_tag_child.geometry("500x400")#+ str(x) + "+" + str(y))  # Size of the window 
+        w_tag_child.title("Definition of "+ self.sm_selezionata)
+        text = tk.Text(w_tag_child)
+        text.pack()
+        s=json.dumps(s, sort_keys=True, allow_nan = True,indent=2)
+        text.insert(tk.END,s)
+        text.config(state = tk.DISABLED)
 
 if __name__ == '__main__':
     print("Error")
