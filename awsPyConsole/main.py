@@ -8,12 +8,14 @@ import sdk.cloudwatch as AwsCloudwatch
 import sdk.cloudfront as AWSCloudfront
 import sdk.stepfunctions as AWSstepfunctions
 import sdk.eventbridge as AWSeventBridge
+import sdk.ssm_parameters as AWSSSMParameter
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
 import window.cloudfront as w_cloudfront
 import window.stepfunctions as w_stepfunctions
 import window.eventbridge as w_eventBridge
+import window.ssm_parameters as w_ssm_parameters #AWSSSMParameter
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -37,7 +39,7 @@ class AwsPyConsole:
         lista_profili_aws=AwsProfiles.get_lista_profili()
         #crete menu
         menu.create_menu(self.root,lista_profili_aws,self.load_profile)
-        self.main_frame(self.root,"")
+        self.main_frame(self.root,lista_profili_aws[0])
         self.root.mainloop()
         
     def add_text_to_frame(self,frame,text):
@@ -70,6 +72,7 @@ class AwsPyConsole:
         self.frameT_cloudFront = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_stepFunctions = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_eventBridge  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_ssmParameter  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
         self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
         self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
@@ -94,6 +97,10 @@ class AwsPyConsole:
         self.add_text_to_frame(self.frameT_eventBridge,"EventBridge del profilo "+self.profilo)
         self.load_eventBridge_window(self.frameT_eventBridge)
         self.tabs.pack(expand=1, fill="both")
+        self.tabs.add(self.frameT_ssmParameter, text="SSM Parameters")
+        self.add_text_to_frame(self.frameT_ssmParameter,"SSM Parameters "+self.profilo)
+        self.load_ssmParameter_window(self.frameT_ssmParameter)
+        self.tabs.pack(expand=1, fill="both")
 
 #PROFILE
     def load_profile(self,root,profilo):
@@ -106,7 +113,7 @@ class AwsPyConsole:
             ,AwsBucket.object_list_paginator
             ,AwsBucket.content_object_text
             ,AwsBucket.content_object_presigned
-            ,AwsBucket.write_test_file
+            ,AwsBucket.write_file #write_test_file
             ,self.reload_s3_instance_window , bucket,path)
     def reload_s3_instance_window(self,frame):#print ("reload_s3_instance_window")
         for widget in frame.winfo_children():
@@ -182,6 +189,18 @@ class AwsPyConsole:
             widget.destroy()
         self.load_eventBridge_window(frame)
 
+#ssm_parameters #AWSSSMParameter
+    def load_ssmParameter_window(self,frame): #self.load_ssmParameter_window(self.frameT_ssmParameter)
+        frame.pack_propagate(False)
+        w_ssm_parameters.SsmParameterInstanceWindow ( frame,self.profilo,
+            AWSSSMParameter.get_parameters_by_path(self.profilo,"/"),
+            AWSSSMParameter.put_parameter, #(profile_name, name, value, type, description)
+            self.reload_ssmParameter_window )
+        
+    def reload_ssmParameter_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_ssmParameter_window(frame)
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':

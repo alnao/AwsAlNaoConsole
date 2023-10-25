@@ -3,6 +3,7 @@ from tkinter import *
 import tkinter as tk
 from  tkinter import ttk
 from tkinter.filedialog import asksaveasfile #https://www.geeksforgeeks.org/python-asksaveasfile-function-in-tkinter/
+from tkinter.filedialog import askopenfilename
 from functools import partial
 
 class BucketInstanceWindow:
@@ -12,7 +13,7 @@ class BucketInstanceWindow:
     mol2=12/3
     mol3=12/2
 
-    def __init__(self,frame,profilo,configuration,lista_bucket,get_objects_method,get_txt_object,get_presigned_object,put_txt_object,reload_method
+    def __init__(self,frame,profilo,configuration,lista_bucket,get_objects_method,get_txt_object,get_presigned_object,upload_file,reload_method
                  ,bucketDefault,pathDefault):
         for widget in frame.winfo_children():
             widget.destroy()
@@ -23,7 +24,7 @@ class BucketInstanceWindow:
         self.get_objects_method=get_objects_method
         self.get_txt_object=get_txt_object
         self.get_presigned_object=get_presigned_object
-        self.put_txt_object=put_txt_object
+        self.upload_file=upload_file
         self.reload_method=reload_method
         self.bucketDefault=bucketDefault
         self.pathDefault=pathDefault
@@ -156,7 +157,8 @@ class BucketInstanceWindow:
         self.tree2.bind("<Double-1>", self.open_detail_folder_from_level1)
         self.tree2.pack()
         self.frame2b = ttk.Frame(self.frame2)
-        l_name= Label(self.frame2b, text="Files " + self.bucket_name )
+        l_name= Label(self.frame2b, text="Files (double-click to upload)"  )
+        l_name.bind("<Double-1>", self.upload_file_level1 )
         l_name.pack()
         #l_name.bind("<Button-1>", lambda e:self.open_window_set_tag())
         self.scroll2b = Scrollbar(self.frame2b)
@@ -242,7 +244,7 @@ class BucketInstanceWindow:
         self.tree3.bind("<Double-1>", self.open_detail_folder_from_level2)
         self.tree3.pack()
         self.frame3b = ttk.Frame(self.frame3)
-        l_name= Label(self.frame3b,text="(click to upload) ") # + path  )
+        l_name= Label(self.frame3b,text="Files (double-click to upload)") # + path  )
         self.path_selezionato=path
         l_name.bind("<Double-1>", self.upload_file_level2 )
         l_name.pack()
@@ -288,17 +290,25 @@ class BucketInstanceWindow:
         else:
             print("nothing to do " + path_old)
     
+    def upload_file_level1(self, event):
+        self.path_selezionato="" #sbianco la variabile potrebbe avere valore
+        self.upload_file_window(self)
+        self.open_detail_bucket_with_name(event,self.bucket_name)
     def upload_file_level2(self, event):
-        item = self.path_selezionato
-        print(item)
-        print("TODO")
+        self.upload_file_window(self)
+        self.open_detail_folder(self.path_selezionato,self.path_selezionato)
+    def upload_file_window(self, event):
+        file_source=askopenfilename()
+        #print( file_source )
+        bucket=self.bucket_name
+        key=self.path_selezionato + "" + file_source.split("/")[-1] #no "/" 
+        self.upload_file(bucket,key,file_source)
 
     def download_file_level2(self,event):
         item = self.tree3b.selection()[0]
         object=self.lista_l1["objects"][int(item)]
         self.download_file(object)
-    
-    def download_file(self,object):
+    def download_file(self,object): 
         #print( object )
         file_name=object["Key"].split("/")[-1]
         files = [('File', file_name)]

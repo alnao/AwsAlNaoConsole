@@ -56,7 +56,7 @@ def object_list_paginator(bucket_name, path):
     return rimuovi_folder_padre(path,response)
 
 def rimuovi_folder_padre(folder_name, list):
-    s3_client = boto3.client("s3")
+    #s3_client = boto3.client("s3")
     el={}
     to_remove=False
     if "objects" in list:
@@ -84,11 +84,18 @@ def content_object_presigned(bucket_name, key):
     return response
     #return {'statusCode': 200,'headers':headers,'body': json.dumps(response)}
 
-def write_test_file(bucket_name, key, body):
+def write_text_file(bucket_name, key, body):
     s3_client = boto3.client("s3")
     OUT_string_encoded = body.encode("utf-8")
     s3_client.put_object(Bucket=bucket_name, Key=key, Body=OUT_string_encoded)
     return True
+
+def write_file(bucket_name,key,local_path):
+    #boto3.setup_default_session(profile_name=profile_name)
+    #s3_client = boto3.client("s3")
+    s3 = boto3.resource('s3')    
+    r=s3.Bucket(bucket_name).upload_file(local_path,key)
+    return r
 
 def delete_all_content_folder(bucket_name,path): #max 1000 elements deleted
     s3_client = boto3.client("s3")
@@ -133,13 +140,21 @@ def main():
     f_key="INPUT/prova_py_sdk.txt"
     f_body="Prova1\nriga 2\nprova3"
     print("----------- scrivo il file file " + f_key)
-    write_test_file(buck, f_key, f_body)
+    write_text_file(buck, f_key, f_body)
     print("----------- file " + f_key)
     c=content_object_text(buck, f_key )
     print(c)
     print("----------- prefigned file " + f_key)
     p=content_object_presigned(buck, f_key)
     print(p)
+    print("----------- upload bynary file " + f_key)
+    r=write_file(buck,folder+"v.xlsx","C:\\Temp\\a.xlsx")
+    print(r)
+    lista_o2=object_list(buck,folder) #lista_o["folders"][0]["Prefix"]
+    if "objects" in lista_o2:
+        for o in lista_o2["objects"]:
+            print (o["Key"] ) #file LastModified, ETag , Size, StorageClass
+    print("----------- end main " )
 
 if __name__ == '__main__':
     main()
