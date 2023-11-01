@@ -14,13 +14,14 @@ class SsmParameterInstanceWindow:
         self.crea_window()
 
     def crea_window(self):
-        self.frame.columnconfigure(2)
-        self.frame1 = ttk.Frame(self.frame, width=550, height=630)
-        self.frame1.grid(row = 2, column = 2, sticky = tk.W, padx = 2) 
+        self.frame.columnconfigure(3)
+        self.frame1 = ttk.Frame(self.frame, width=550, height=600)
+        self.frame1.grid(row = 1, column = 1, sticky = tk.W, padx = 2) 
         self.frame1.pack(side=LEFT, expand = 1)
         self.frame2 = ttk.Frame(self.frame, width=650, height=630)
         self.frame2.grid(row = 1, column = 2, sticky = tk.E, padx = 2) 
         self.frame2.pack(side=LEFT, expand = 1)
+        Button(self.frame1, text = "Crea nuovo parametro", command=self.open_window_create).pack()
         self.scroll = Scrollbar(self.frame1)
         self.scroll.pack(side=RIGHT, fill=Y)
         self.tree = ttk.Treeview(self.frame1,yscrollcommand=self.scroll.set,height=28)
@@ -38,9 +39,9 @@ class SsmParameterInstanceWindow:
             self.tree.insert(parent='',index='end',iid=i,text='', values=(Name,Type))
             i=i+1
         self.tree.bind("<Double-1>", self.open_detail)
-        self.tree.pack(side=LEFT, expand = 1)
-        Button(self.frame, text = "Crea nuovo parametro", command=self.open_window_create).pack()
         self.free2_loaded=False
+        self.tree.pack(side=LEFT, expand = 1)
+
 
     def open_detail(self, event): #(frame,profilo,lista_istanze,istanza):
         item = self.tree.selection()[0]

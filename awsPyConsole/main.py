@@ -9,6 +9,7 @@ import sdk.cloudfront as AWSCloudfront
 import sdk.stepfunctions as AWSstepfunctions
 import sdk.eventbridge as AWSeventBridge
 import sdk.ssm_parameters as AWSSSMParameter
+import sdk.apigateway as AWSAPIGateway
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
@@ -16,12 +17,23 @@ import window.cloudfront as w_cloudfront
 import window.stepfunctions as w_stepfunctions
 import window.eventbridge as w_eventBridge
 import window.ssm_parameters as w_ssm_parameters #AWSSSMParameter
+import window.apigateway as w_apigateway #AWSSSMParameter
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
 import yaml #pip install pyyaml
 
 #see example tk https://realpython.com/python-gui-tkinter/
+class StatusBar(tk.Frame):
+    def __init__(self, master,profilo):
+        tk.Frame.__init__(self, master)
+        self.label = tk.Label(self)
+        self.label.pack(side=tk.LEFT)
+        self.pack(side=tk.BOTTOM, fill=tk.X)
+        self.profilo=profilo
+        self.label.config(text="Profilo " + self.profilo )
+    def set(self, newText):
+        self.label.config(text="Profilo " + self.profilo + " - " + newText)
 
 class AwsPyConsole:
     larghezza=1500
@@ -34,7 +46,7 @@ class AwsPyConsole:
         self.root.title('Aws Py Console')
         x=0 #ex 10 ex root.winfo_screenwidth() // 6
         y=0 #ex 10 ex int(root.winfo_screenheight() * 0.1)
-        self.root.geometry (''+str(self.larghezza)+'x'+str(self.altezza)+'+' + str(x) + "+" + str(y) ) #WIDTHxHEIGHT+TOP+LEFT
+        self.root.geometry (''+str(self.larghezza)+'x'+str(self.altezza+30)+'+' + str(x) + "+" + str(y) ) #WIDTHxHEIGHT+TOP+LEFT
         #get AWS profiles
         lista_profili_aws=AwsProfiles.get_lista_profili()
         #crete menu
@@ -42,6 +54,13 @@ class AwsPyConsole:
         self.main_frame(self.root,lista_profili_aws[0])
         self.root.mainloop()
         
+    def list_to_clipboard(self, list, index):
+        item = str ( list.selection()[0] )
+        text = list.item(item)['values'][index]
+        self.root.clipboard_clear()
+        self.root.clipboard_append(str(text))
+        self.status.set(text)
+
     def add_text_to_frame(self,frame,text):
         Label(frame, text=text).pack()
         frame.pack_propagate(False)
@@ -54,13 +73,14 @@ class AwsPyConsole:
             self.add_text_to_frame(self.frame1,"Selezionare un profilo") # Label(frame1, text="Selezionare un profilo").pack()
             #frame1.pack_propagate(False)
             return
-        profilo_conf={}
-        profilo_con_conf=False
-        for e in self.configuration:
-            if e==self.profilo:
-                profilo_conf=self.configuration[e]
-                profilo_con_conf=True
+        #profilo_conf={}
+        #profilo_con_conf=False
+        #for e in self.configuration:
+        #    if e==self.profilo:
+        #        profilo_conf=self.configuration[e]
+        #        profilo_con_conf=True
         self.frame1=tk.Frame(root,width=self.larghezza-25,height=self.altezza-25,bg="#EEEEEE")
+        self.status = StatusBar(self.frame1, self.profilo)
         self.frame1.grid(row=0,column=0)
         #tabs window
         self.tabs = ttk.Notebook(self.frame1, width=self.larghezza-30, height=self.altezza-30)
@@ -73,10 +93,11 @@ class AwsPyConsole:
         self.frameT_stepFunctions = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_eventBridge  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_ssmParameter  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_apigateway  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
-        self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
-        self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
-        self.frameT_profile.pack_propagate(False)
+        #self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
+        #self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
+        #self.frameT_profile.pack_propagate(False)
         self.tabs.add(self.frameT_ec2, text="Ec2")
         self.add_text_to_frame(self.frameT_ec2,"Lista istanze del profilo "+self.profilo)
         self.load_ec2_instance_window()
@@ -101,7 +122,11 @@ class AwsPyConsole:
         self.add_text_to_frame(self.frameT_ssmParameter,"SSM Parameters "+self.profilo)
         self.load_ssmParameter_window(self.frameT_ssmParameter)
         self.tabs.pack(expand=1, fill="both")
-
+        self.tabs.add(self.frameT_apigateway, text="API Gateway")
+        self.add_text_to_frame(self.frameT_apigateway,"API Gateway "+self.profilo)
+        self.load_apiGateway_window(self.frameT_apigateway)
+        self.tabs.pack(expand=1, fill="both")
+        
 #PROFILE
     def load_profile(self,root,profilo):
         self.main_frame(root,profilo)
@@ -154,7 +179,6 @@ class AwsPyConsole:
             AWSCloudfront.get_distribution,
             AWSCloudfront.invalid_distribuzion,
             self.reload_cloudfront_window )
-        
     def reload_cloudfront_window(self,frame):
         for widget in frame.winfo_children():
             widget.destroy()
@@ -169,7 +193,6 @@ class AwsPyConsole:
             AWSstepfunctions.state_machine_execution_detail,
             AWSstepfunctions.state_machine_start,
             self.reload_stepfunction_window )
-        
     def reload_stepfunction_window(self,frame):
         for widget in frame.winfo_children():
             widget.destroy()
@@ -183,7 +206,6 @@ class AwsPyConsole:
             AWSeventBridge.disable_role,
             AWSeventBridge.enable_role,
             self.reload_eventBridge_window )
-        
     def reload_eventBridge_window(self,frame):
         for widget in frame.winfo_children():
             widget.destroy()
@@ -196,11 +218,23 @@ class AwsPyConsole:
             AWSSSMParameter.get_parameters_by_path(self.profilo,"/"),
             AWSSSMParameter.put_parameter, #(profile_name, name, value, type, description)
             self.reload_ssmParameter_window )
-        
     def reload_ssmParameter_window(self,frame):
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_ssmParameter_window(frame)
+#API GATEWAY
+    def load_apiGateway_window(self,frame):
+        frame.pack_propagate(False)
+        w_apigateway.ApiGatewayInstanceWindow(frame,self.profilo,
+            AWSAPIGateway.api_list(self.profilo),
+            AWSAPIGateway.resouce_list,
+            AWSAPIGateway.method_detail,
+            AWSAPIGateway.stage_list,
+            self.reload_apiGateway_window , self.list_to_clipboard)
+    def reload_apiGateway_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_apiGateway_window(frame)
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':
