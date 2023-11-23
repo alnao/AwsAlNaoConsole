@@ -10,14 +10,18 @@ import sdk.stepfunctions as AWSstepfunctions
 import sdk.eventbridge as AWSeventBridge
 import sdk.ssm_parameters as AWSSSMParameter
 import sdk.apigateway as AWSAPIGateway
+import sdk.dynamodb as AWSDynamoDB
+import sdk.rds as AWSRds
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
 import window.cloudfront as w_cloudfront
 import window.stepfunctions as w_stepfunctions
 import window.eventbridge as w_eventBridge
-import window.ssm_parameters as w_ssm_parameters #AWSSSMParameter
-import window.apigateway as w_apigateway #AWSSSMParameter
+import window.ssm_parameters as w_ssm_parameters 
+import window.apigateway as w_apigateway 
+import window.dynamodb as w_dynamodb 
+import window.rds as w_rds
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -59,7 +63,7 @@ class AwsPyConsole:
         text = list.item(item)['values'][index]
         self.root.clipboard_clear()
         self.root.clipboard_append(str(text))
-        self.status.set(text)
+        self.status.set( str(text) )
 
     def add_text_to_frame(self,frame,text):
         Label(frame, text=text).pack()
@@ -94,6 +98,8 @@ class AwsPyConsole:
         self.frameT_eventBridge  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_ssmParameter  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_apigateway  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_dynamodb  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_rds  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
         #self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
         #self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
@@ -125,6 +131,14 @@ class AwsPyConsole:
         self.tabs.add(self.frameT_apigateway, text="API Gateway")
         self.add_text_to_frame(self.frameT_apigateway,"API Gateway "+self.profilo)
         self.load_apiGateway_window(self.frameT_apigateway)
+        self.tabs.pack(expand=1, fill="both")
+        self.tabs.add(self.frameT_dynamodb, text="DynamoDB")
+        self.add_text_to_frame(self.frameT_dynamodb,"DynamoDB "+self.profilo)
+        self.load_dynamodb_window(self.frameT_dynamodb)
+        self.tabs.pack(expand=1, fill="both")
+        self.tabs.add(self.frameT_rds, text="RDS")
+        self.add_text_to_frame(self.frameT_rds,"RDS "+self.profilo)
+        self.load_rds_window(self.frameT_rds)
         self.tabs.pack(expand=1, fill="both")
         
 #PROFILE
@@ -235,6 +249,29 @@ class AwsPyConsole:
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_apiGateway_window(frame)
+#DYNAMO
+    def load_dynamodb_window(self,frame):
+        frame.pack_propagate(False)
+        w_dynamodb.DynamoDBInstanceWindow(frame,self.profilo,
+            AWSDynamoDB.table_list(self.profilo),
+            AWSDynamoDB.full_scan_table,
+            AWSDynamoDB.write_element_with_id,
+            AWSDynamoDB.delete_element_by_id,
+            self.reload_dynamodb_window , self.list_to_clipboard)
+    def reload_dynamodb_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_dynamodb_window(frame)
+#RDS load_rds_window(self.frameT_rds)
+    def load_rds_window(self,frame):
+        frame.pack_propagate(False)
+        w_rds.RDSInstanceWindow(frame,self.profilo,
+            AWSRds.db_instances_list(self.profilo),
+            self.reload_rds_window , self.list_to_clipboard)
+    def reload_rds_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_rds_window(frame)
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':
@@ -242,7 +279,7 @@ if __name__ == '__main__':
         config = yaml.safe_load(open("./config.yaml"))
     except: 
         try:
-            config = yaml.safe_load(open("C:\\Transito\\000_FILES\\configConsole.yaml"))
+            config = yaml.safe_load(open("C:\\temp\\configConsole.yaml"))
         except: 
             print("Nessun file di configurazione")
             config = {}

@@ -49,7 +49,7 @@ class SsmParameterInstanceWindow:
         for parametri_ciclo in self.lista_parametri:
             if name_selected==parametri_ciclo['Name']:
                 self.distribuzione=parametri_ciclo
-                print(parametri_ciclo)
+                #print(parametri_ciclo)
                 
         if self.free2_loaded==True:
             self.frame2.pack_forget()# or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
