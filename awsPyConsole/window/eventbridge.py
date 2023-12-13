@@ -2,6 +2,7 @@ from tkinter import *
 import tkinter as tk
 from  tkinter import ttk
 import json
+from .json_viewer import JSONViewer
 
 class EventBridgeWindow:
     def __init__(self,frame,profilo,selezionato,lista,dettaglio,disattiva,attiva,reload_method):#lista,dettaglio,disattiva,attiva
@@ -86,8 +87,9 @@ class EventBridgeWindow:
             i=i+1
         self.tree2.pack()
         self.frame2b = ttk.Frame(self.frame2)
-        l_name= Label(self.frame2b, text="Dettaglio" )
-        l_name.pack()
+        #l_name= Label(self.frame2b, text="Dettaglio" )
+        #l_name.pack()
+        Button(self.frame2b, text = "Dettaglio", command=self.show_definition).pack()
         text = tk.Text(self.frame2b)
         text.pack()
         s="NULL"
@@ -102,6 +104,14 @@ class EventBridgeWindow:
         self.frame2a.pack()
         self.frame2b.pack()
         self.frame2.pack(side=LEFT)
+
+    def show_definition(self): #(frame,profilo,lista_istanze,istanza):
+        #self.open_window_set_tag()
+        s=""
+        for key in self.dettaglio_valore :
+            if key=='EventPattern':
+                s = self.dettaglio_valore[key]
+        JSONViewer(Toplevel(self.frame),s,self.sm_selezionata)
     
     def open_detail_tag(self, event): #(frame,profilo,lista_istanze,istanza):
         self.open_window_set_tag()

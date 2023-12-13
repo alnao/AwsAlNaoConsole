@@ -2,6 +2,7 @@ from tkinter import *
 import tkinter as tk
 from  tkinter import ttk
 import json 
+from .json_viewer import JSONViewer
 
 class StepFunctionsWindow:
     def __init__(self,frame,profilo,selezionato,lista,dettaglio,esecuzioni,esecuzione_dett,esegui,reload_method):
@@ -131,14 +132,22 @@ class StepFunctionsWindow:
         for key in self.dettaglio_valore :
             if key=='definition':
                 s = self.dettaglio_valore[key]
-        s=s.replace("\n","").replace("'","ß").replace("\\\"","'").replace("\"","'").replace("ß","\"")#.replace(" ","").replace("\\\"","\"")
+        JSONViewer(Toplevel(self.frame),s,self.sm_selezionata)
+
+    def show_definition_old(self): #(frame,profilo,lista_istanze,istanza):
+        s=""
+        for key in self.dettaglio_valore :
+            if key=='definition':
+                s = self.dettaglio_valore[key]
+        s=s.replace("\t","").replace("'","ß").replace("\\\"","'").replace("\"","'").replace("ß","\"")#.replace(" ","").replace("\\\"","\"")
+        #ascii(s).replace("\\\n","\n")
         w_tag_child=Toplevel(self.frame2) # Child window 
         w_tag_child.geometry("500x400")#+ str(x) + "+" + str(y))  # Size of the window 
         w_tag_child.title("Definition of "+ self.sm_selezionata)
         text = tk.Text(w_tag_child)
         text.pack()
         s=json.dumps(s, sort_keys=True, allow_nan = True,indent=2)
-        text.insert(tk.END,s)
+        text.insert(tk.END, s[1:-1].replace("\\\n","\n") )
         text.config(state = tk.DISABLED)
 
 if __name__ == '__main__':
