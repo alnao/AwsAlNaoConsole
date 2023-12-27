@@ -12,6 +12,7 @@ import sdk.ssm_parameters as AWSSSMParameter
 import sdk.apigateway as AWSAPIGateway
 import sdk.dynamodb as AWSDynamoDB
 import sdk.rds as AWSRds
+import sdk.glue_job as AWSGlueJob
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
@@ -22,6 +23,7 @@ import window.ssm_parameters as w_ssm_parameters
 import window.apigateway as w_apigateway 
 import window.dynamodb as w_dynamodb 
 import window.rds as w_rds
+import window.glue_job as w_glue_job
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -100,6 +102,7 @@ class AwsPyConsole:
         self.frameT_apigateway  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_dynamodb  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_rds  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
+        self.frameT_gluejob = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
         #self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
         #self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
@@ -139,6 +142,10 @@ class AwsPyConsole:
         self.tabs.add(self.frameT_rds, text="RDS")
         self.add_text_to_frame(self.frameT_rds,"RDS "+self.profilo)
         self.load_rds_window(self.frameT_rds)
+        self.tabs.pack(expand=1, fill="both")
+        self.tabs.add(self.frameT_gluejob, text="Glue Job")
+        self.add_text_to_frame(self.frameT_gluejob,"Glue Job "+self.profilo)
+        self.load_glue_job_window(self.frameT_gluejob)
         self.tabs.pack(expand=1, fill="both")
         
 #PROFILE
@@ -272,7 +279,24 @@ class AwsPyConsole:
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_rds_window(frame)
+#GLUE JOB
+    def load_glue_job_window(self,frame):
+        frame.pack_propagate(False)
+        w_glue_job.GlueJobWindow(frame,self.profilo,"",#selezionato,lista,dettaglio,esecuzioni,ececusione_dett,esegui,reload_method)
+            AWSGlueJob.jobs_list(self.profilo),
+            AWSGlueJob.job_detail,
+            AWSGlueJob.job_execution_list,
+            AWSGlueJob.job_execution_detail,
+            AWSGlueJob.job_start,
+            self.reload_glue_job_window )
+    def reload_glue_job_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_glue_job_window(frame)
 
+
+#MAIN
+#MAIN
 #MAIN AwsPyConsole
 if __name__ == '__main__':
     try:
