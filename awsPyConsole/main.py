@@ -12,6 +12,7 @@ import sdk.ssm_parameters as AWSSSMParameter
 import sdk.apigateway as AWSAPIGateway
 import sdk.dynamodb as AWSDynamoDB
 import sdk.rds as AWSRds
+import sdk.elastic_ip as AWSElasticIP
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
@@ -22,6 +23,7 @@ import window.ssm_parameters as w_ssm_parameters
 import window.apigateway as w_apigateway 
 import window.dynamodb as w_dynamodb 
 import window.rds as w_rds
+import window.elastic_ip as w_elastic_ip
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -77,75 +79,24 @@ class AwsPyConsole:
             self.add_text_to_frame(self.frame1,"Selezionare un profilo") # Label(frame1, text="Selezionare un profilo").pack()
             #frame1.pack_propagate(False)
             return
-        #profilo_conf={}
-        #profilo_con_conf=False
-        #for e in self.configuration:
-        #    if e==self.profilo:
-        #        profilo_conf=self.configuration[e]
-        #        profilo_con_conf=True
         self.frame1=tk.Frame(root,width=self.larghezza-25,height=self.altezza-25,bg="#EEEEEE")
         self.status = StatusBar(self.frame1, self.profilo)
         self.frame1.grid(row=0,column=0)
         #tabs window
         self.tabs = ttk.Notebook(self.frame1, width=self.larghezza-30, height=self.altezza-30)
         self.tabs.pack(fill=BOTH, expand=TRUE)
-        self.frameT_profile = ttk.Frame(self.tabs)
-        self.frameT_ec2 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2)
-        self.frameT_s3  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2c
-        self.frameT_cloudWatch = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-        self.frameT_cloudFront = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-        self.frameT_stepFunctions = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-        self.frameT_eventBridge  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-        self.frameT_ssmParameter  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-        self.frameT_apigateway  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-        self.frameT_dynamodb  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-        self.frameT_rds  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
-#TABS 
-        #self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
-        #self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
-        #self.frameT_profile.pack_propagate(False)
-        self.tabs.add(self.frameT_ec2, text="Ec2")
-        self.add_text_to_frame(self.frameT_ec2,"Lista istanze del profilo "+self.profilo)
-        self.load_ec2_instance_window()
-        self.tabs.add(self.frameT_s3, text="S3")
-        self.add_text_to_frame(self.frameT_s3,"Lista bucket del profilo "+self.profilo)
-        self.load_s3_instance_window(self.frameT_s3,"","")
-        self.tabs.add(self.frameT_cloudWatch, text="CloudWatch")
-        self.add_text_to_frame(self.frameT_cloudWatch,"CloudWatch del profilo "+self.profilo)
-        self.load_cloudwatch_window(self.frameT_cloudWatch)
-        self.tabs.add(self.frameT_cloudFront, text="CloudFront")
-        self.add_text_to_frame(self.frameT_cloudFront,"CloudFront del profilo "+self.profilo)
-        self.load_cloudfront_window(self.frameT_cloudFront)
-        self.tabs.add(self.frameT_stepFunctions, text="StepFunctions")
-        self.add_text_to_frame(self.frameT_stepFunctions,"StepFunctions del profilo "+self.profilo)
-        self.load_stepfunction_window(self.frameT_stepFunctions)
-        self.tabs.pack(expand=1, fill="both")
-        self.tabs.add(self.frameT_eventBridge, text="EventBridge")
-        self.add_text_to_frame(self.frameT_eventBridge,"EventBridge del profilo "+self.profilo)
-        self.load_eventBridge_window(self.frameT_eventBridge)
-        self.tabs.pack(expand=1, fill="both")
-        self.tabs.add(self.frameT_ssmParameter, text="SSM Parameters")
-        self.add_text_to_frame(self.frameT_ssmParameter,"SSM Parameters "+self.profilo)
-        self.load_ssmParameter_window(self.frameT_ssmParameter)
-        self.tabs.pack(expand=1, fill="both")
-        self.tabs.add(self.frameT_apigateway, text="API Gateway")
-        self.add_text_to_frame(self.frameT_apigateway,"API Gateway "+self.profilo)
-        self.load_apiGateway_window(self.frameT_apigateway)
-        self.tabs.pack(expand=1, fill="both")
-        self.tabs.add(self.frameT_dynamodb, text="DynamoDB")
-        self.add_text_to_frame(self.frameT_dynamodb,"DynamoDB "+self.profilo)
-        self.load_dynamodb_window(self.frameT_dynamodb)
-        self.tabs.pack(expand=1, fill="both")
-        self.tabs.add(self.frameT_rds, text="RDS")
-        self.add_text_to_frame(self.frameT_rds,"RDS "+self.profilo)
-        self.load_rds_window(self.frameT_rds)
-        self.tabs.pack(expand=1, fill="both")
-        
+        for e in self.lista_funzionalita:
+            e_frame= ttk.Frame(self.tabs)
+            self.tabs.add(e_frame , text=e['title'] ) #self.tabs.add(self.frameT_elastic_ip, text="Elastic IP")
+            self.add_text_to_frame(e_frame,e['desc']+ " " + self.profilo) #self.add_text_to_frame(self.frameT_elastic_ip,"Elastic IP "+self.profilo)
+            e['metodo'](self,frame=e_frame) #self.load_elastic_ip_window(self.frameT_elastic_ip)
+            self.tabs.pack(expand=1, fill="both")
+
 #PROFILE
     def load_profile(self,root,profilo):
         self.main_frame(root,profilo)
 #S3
-    def load_s3_instance_window(self,frame,bucket,path):
+    def load_s3_instance_window(self,frame): #,bucket,path
         frame.pack_propagate(False)
         w_s3_bucket.BucketInstanceWindow(frame,self.profilo,self.configuration
             ,AwsBucket.bucket_list(self.profilo)
@@ -153,26 +104,26 @@ class AwsPyConsole:
             ,AwsBucket.content_object_text
             ,AwsBucket.content_object_presigned
             ,AwsBucket.write_file #write_test_file
-            ,self.reload_s3_instance_window , bucket,path)
+            ,self.reload_s3_instance_window,"","" ) #, bucket,path
     def reload_s3_instance_window(self,frame):#print ("reload_s3_instance_window")
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_s3_instance_window(frame)
 #EC2
-    def load_ec2_instance_window(self):
-        self.frameT_ec2.pack_propagate(False)
-        w_ec2_instances.Ec2InstanceWindow(self.frameT_ec2,self.profilo
+    def load_ec2_instance_window(self,frame):
+        frame.pack_propagate(False)
+        w_ec2_instances.Ec2InstanceWindow(frame,self.profilo
             ,AwsInstances.get_lista_istanze(self.profilo)
             ,AwsInstances.set_tag
             ,AwsInstances.stop_instance
             ,AwsInstances.start_instance
             ,self.reload_ec2_instance_window )
-    def reload_ec2_instance_window(self):#print ("reload_ec2_instance_window")
-        for widget in self.frameT_ec2.winfo_children():
+    def reload_ec2_instance_window(self,frame):#print ("reload_ec2_instance_window")
+        for widget in frame.winfo_children():
             widget.destroy()
         #self.frame2b.pack_forget() # or frm.grid_forget() depending on whether the frame was packed or grided. #self.frame2.Destroy()
         #self.frame2b = ttk.Frame(self.tabs)
-        self.load_ec2_instance_window()
+        self.load_ec2_instance_window(frame)
         #self.tabs.pack(expand=1, fill="both")
 #Cloudwatch
     def load_cloudwatch_window(self,frame):
@@ -272,6 +223,31 @@ class AwsPyConsole:
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_rds_window(frame)
+#ElasticCIP load_rds_window(self.frameT_rds)
+    def load_elastic_ip_window(self,frame):
+        frame.pack_propagate(False)
+        w_elastic_ip.ElasticIpInstanceWindow(frame,self.profilo,
+            AWSElasticIP.get_elastic_addresses(self.profilo),
+            self.reload_elastic_ip_window , self.list_to_clipboard)
+    def reload_elastic_ip_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_elastic_ip_window(frame)
+
+# lista_funzionalita
+    lista_funzionalita=[ 
+            {'title':'EC2','desc':'Lista istanze EC2 del profilo','metodo':load_ec2_instance_window}
+            ,{'title':'S3','desc':'Lista bucket S3 del profilo','metodo':load_s3_instance_window}
+            ,{'title':'CloudWatch','desc':'Lista CloudWatch del profilo','metodo':load_cloudwatch_window}
+            ,{'title':'CloudFront','desc':'Lista CloudFront del profilo','metodo':load_cloudfront_window}
+            ,{'title':'StepFunction','desc':'Lista StepFunction del profilo','metodo':load_stepfunction_window}
+            ,{'title':'EventBridge','desc':'Lista EventBridge del profilo','metodo':load_eventBridge_window}
+            ,{'title':'SSM parameter','desc':'Lista SSM parameter del profilo','metodo':load_ssmParameter_window}
+            ,{'title':'Api gateway','desc':'Lista API del profilo','metodo':load_apiGateway_window}
+            ,{'title':'DynamoDB','desc':'Lista tabelle dynamo del profilo','metodo':load_dynamodb_window}
+            ,{'title':'RDS','desc':'Lista database RDS del profilo','metodo':load_rds_window}
+            ,{'title':'Elastic IP','desc':'Lista Elastic IP del profilo','metodo':load_elastic_ip_window}
+        ]
 
 #MAIN AwsPyConsole
 if __name__ == '__main__':
