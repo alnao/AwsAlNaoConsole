@@ -14,6 +14,7 @@ import sdk.dynamodb as AWSDynamoDB
 import sdk.rds as AWSRds
 import sdk.elastic_ip as AWSElasticIP
 import sdk.glue_job as AWSGlueJob
+import sdk.sns as AWSSnsJob
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
@@ -26,6 +27,7 @@ import window.dynamodb as w_dynamodb
 import window.rds as w_rds
 import window.elastic_ip as w_elastic_ip
 import window.glue_job as w_glue_job
+import window.sns as w_sns
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -252,6 +254,19 @@ class AwsPyConsole:
             widget.destroy()
         self.load_glue_job_window(frame)
 
+#SNS
+    def load_sns_window(self,frame):
+        frame.pack_propagate(False)
+        w_sns.SnsWindow(frame,self.profilo,"",#selezionato,lista,dettaglio,esecuzioni,ececusione_dett,esegui,reload_method)
+            AWSSnsJob.get_sns_list(self.profilo),
+            AWSSnsJob.get_subscriptions,
+            AWSSnsJob.publish,
+            self.reload_sns_window )
+    def reload_sns_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_sns_window(frame)
+
 # lista_funzionalita
     lista_funzionalita=[ 
             {'title':'EC2','desc':'Lista istanze EC2 del profilo','metodo':load_ec2_instance_window}
@@ -266,6 +281,7 @@ class AwsPyConsole:
             ,{'title':'RDS','desc':'Lista database RDS del profilo','metodo':load_rds_window}
             ,{'title':'Elastic IP','desc':'Lista Elastic IP del profilo','metodo':load_elastic_ip_window}
             ,{'title':'Glue Job','desc':'Lista job di Glue','metodo':load_glue_job_window}
+            ,{'title':'SNS','desc':'Lista topic SNS','metodo':load_sns_window}
         ]
     
 #MAIN
