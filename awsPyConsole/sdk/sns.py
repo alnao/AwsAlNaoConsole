@@ -57,7 +57,7 @@ def publish(profile_name,topic_arn,post):
     return result
 
 def main():
-    print("Aws Py Console - Ec2 Instances START")
+    print("Aws Py Console - SNS Instances START")
     #create
     #result= create_topic("default","AlbertoSDK")
     #print(result)

@@ -15,6 +15,7 @@ import sdk.rds as AWSRds
 import sdk.elastic_ip as AWSElasticIP
 import sdk.glue_job as AWSGlueJob
 import sdk.sns as AWSSnsJob
+import sdk.sqs as AWSSqs
 import window.ec2_instances as w_ec2_instances
 import window.s3_bucket as w_s3_bucket
 import window.cloudwatch as w_cloudwatch
@@ -28,6 +29,7 @@ import window.rds as w_rds
 import window.elastic_ip as w_elastic_ip
 import window.glue_job as w_glue_job
 import window.sns as w_sns
+import window.sqs as w_sqs
 from tkinter import Label
 from tkinter import Label
 from tkinter import ttk
@@ -266,6 +268,20 @@ class AwsPyConsole:
         for widget in frame.winfo_children():
             widget.destroy()
         self.load_sns_window(frame)
+#SQS
+    def load_sqs_window(self,frame):
+        frame.pack_propagate(False)
+        w_sqs.SQSWindow(frame,self.profilo,"",#selezionato,lista,dettaglio,esecuzioni,ececusione_dett,esegui,reload_method)
+            AWSSqs.get_sns_list(self.profilo),
+            AWSSqs.get_queue,
+            AWSSqs.send_queue_message,
+            AWSSqs.receive_queue_messages,
+            AWSSqs.delete_queue_message,
+            self.reload_sqs_window )
+    def reload_sqs_window(self,frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
+        self.load_sqs_window(frame)
 
 # lista_funzionalita
     lista_funzionalita=[ 
@@ -282,6 +298,7 @@ class AwsPyConsole:
             ,{'title':'Elastic IP','desc':'Lista Elastic IP del profilo','metodo':load_elastic_ip_window}
             ,{'title':'Glue Job','desc':'Lista job di Glue','metodo':load_glue_job_window}
             ,{'title':'SNS','desc':'Lista topic SNS','metodo':load_sns_window}
+            ,{'title':'SQS','desc':'Lista code SQS','metodo':load_sqs_window}
         ]
     
 #MAIN
