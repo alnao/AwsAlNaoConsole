@@ -162,13 +162,13 @@ class Ec2InstanceWindow:
         
     def send_set_tag(self):        #https://stackhowto.com/how-to-get-value-from-entry-on-button-click-in-tkinter/
         self.set_tag_method(self.istanza['InstanceId'], self.e1.get(), self.e2.get() )
-        self.reload_method()
+        self.reload_method( self.frame )
     def send_stop(self):
         self.stop_method(self.istanza['InstanceId'])
-        self.reload_method()
+        self.reload_method( self.frame )
     def send_start(self):
         self.start_method(self.istanza['InstanceId'])
-        self.reload_method()
+        self.reload_method( self.frame )
 
 if __name__ == '__main__':
     root = tk.Tk()
