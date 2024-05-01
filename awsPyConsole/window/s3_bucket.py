@@ -6,7 +6,7 @@ from tkinter.filedialog import asksaveasfile #https://www.geeksforgeeks.org/pyth
 from tkinter.filedialog import askopenfilename
 from functools import partial
 
-class BucketInstanceWindow:
+class BucketWindow:
     larghezza_blocco=450
     altezza=600
     mol1=12/7 #larghezza colonne 
