@@ -92,8 +92,8 @@ class AwsPyConsole:
         self.tabs = ttk.Notebook(self.frame1, width=self.larghezza-30, height=self.altezza-30)
         self.tabs.pack(fill=BOTH, expand=TRUE)
         self.frameT_profile = ttk.Frame(self.tabs)
-        self.frameT_ec2 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2)
         self.frameT_s3  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2c
+        self.frameT_ec2 = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2)
         self.frameT_cloudWatch = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_cloudFront = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_stepFunctions = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
@@ -104,15 +104,16 @@ class AwsPyConsole:
         self.frameT_rds  = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
         self.frameT_gluejob = ttk.Frame(self.tabs)#.grid(row=1, columnspan=2) #frame2e
 #TABS 
+        self.tabs.add(self.frameT_s3, text="S3")
+        self.add_text_to_frame(self.frameT_s3,"Lista bucket del profilo "+self.profilo)
+        self.load_s3_instance_window(self.frameT_s3,"","")
+        return
         #self.tabs.add(self.frameT_profile, text="Profilo " + self.profilo)
         #self.add_text_to_frame(self.frameT_profile,"TODO" + self.profilo)
         #self.frameT_profile.pack_propagate(False)
         self.tabs.add(self.frameT_ec2, text="Ec2")
         self.add_text_to_frame(self.frameT_ec2,"Lista istanze del profilo "+self.profilo)
         self.load_ec2_instance_window()
-        self.tabs.add(self.frameT_s3, text="S3")
-        self.add_text_to_frame(self.frameT_s3,"Lista bucket del profilo "+self.profilo)
-        self.load_s3_instance_window(self.frameT_s3,"","")
         self.tabs.add(self.frameT_cloudWatch, text="CloudWatch")
         self.add_text_to_frame(self.frameT_cloudWatch,"CloudWatch del profilo "+self.profilo)
         self.load_cloudwatch_window(self.frameT_cloudWatch)
@@ -154,12 +155,13 @@ class AwsPyConsole:
 #S3
     def load_s3_instance_window(self,frame,bucket,path):
         frame.pack_propagate(False)
+        s3 = AwsBucket.S3Bucket(self.profilo)
         w_s3_bucket.BucketInstanceWindow(frame,self.profilo,self.configuration
-            ,AwsBucket.bucket_list(self.profilo)
-            ,AwsBucket.object_list_paginator
-            ,AwsBucket.content_object_text
-            ,AwsBucket.content_object_presigned
-            ,AwsBucket.write_file #write_test_file
+            ,s3.bucket_list() #(self.profilo)
+            ,s3.object_list_paginator
+            ,s3.content_object_text
+            ,s3.content_object_presigned
+            ,s3.write_file #write_test_file
             ,self.reload_s3_instance_window , bucket,path)
     def reload_s3_instance_window(self,frame):#print ("reload_s3_instance_window")
         for widget in frame.winfo_children():

@@ -17,10 +17,10 @@ class AwsTerminalPyConsole:
 
     def clear(self,):
         try:
-            os.system('cls') # Clear screen for windows
+            os.system('clear') # Clear screen for windows
         except: 
             try:
-                os.system('clear')
+                os.system('cls')
             except: 
                 print("impossile da pulire")
 
@@ -79,12 +79,13 @@ class AwsTerminalPyConsole:
             )
         if servizio_selezionato==self.funzioni_disponibili[0]:
             #print ("Servizio selezionato : S3")
+            s3 = AwsBucket.S3Bucket(self.profilo_selezionato)
             T_s3_bucket.BucketInstanceTerminal(
                 self.profilo_selezionato,
                 self.select_terminal_option,
-                AwsBucket.bucket_list,
-                AwsBucket.object_list_paginator,
-                AwsBucket.content_object_presigned
+                s3.bucket_list,
+                s3.object_list_paginator,
+                s3.content_object_presigned
             )     
         
     def scrollTxt(self,text):

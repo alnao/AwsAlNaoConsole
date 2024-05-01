@@ -313,7 +313,7 @@ class BucketInstanceWindow:
         file_name=object["Key"].split("/")[-1]
         files = [('File', file_name)]
         file_dest = asksaveasfile(filetypes = files, defaultextension = files,initialfile =file_name)
-        print("To save file : " + file_dest.name)
+        #print("To save file : " + file_dest)
         #only text files
         #righe=self.get_txt_object(self.bucket_name,object["Key"])
         #with open(file_dest.name, "w") as f: # https://www.codingem.com/learn-python-how-to-write-to-a-file/

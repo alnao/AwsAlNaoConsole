@@ -1,11 +1,11 @@
 default:
   s3:
-  - label: alberto incoming
-    bucket: alberto-input
-    path: INCOMING
-  - label: alberto outgoing
-    bucket: alberto-input
-    path: OUTGOING
+  - label: applicazioni
+    bucket: formazione-cherry-applicazione
+    path: ''
+  - label: formazione
+    bucket: formazione-alberto
+    path: ''
   - label: sftp-simulator
     bucket: formazione-sftp-simulator
     path: ''
